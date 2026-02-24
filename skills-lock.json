@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "skills": {
+    "golang-patterns": {
+      "source": "affaan-m/everything-claude-code",
+      "sourceType": "github",
+      "computedHash": "9ed832f5837cacd42c6412a1db55e5cd0ad4d54348870dec51ee836090060209"
+    },
+    "golang-testing": {
+      "source": "affaan-m/everything-claude-code",
+      "sourceType": "github",
+      "computedHash": "51e446778ca76200de6bf122676edc4e28027963a516f75f6157be5bba645a14"
+    }
+  }
+}
