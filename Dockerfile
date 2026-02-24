@@ -28,6 +28,10 @@ RUN chown appuser:appuser /app/server
 
 USER appuser
 
+# Run Netlify Lambda-compatible function as local HTTP server.
+# See: https://docs.netlify.com/build/functions/lambda-compatibility/?fn-language=go
+ENV RUN_HTTP_SERVER=1
+
 EXPOSE 8080
 
 CMD ["./server"]
