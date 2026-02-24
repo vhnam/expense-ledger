@@ -6,7 +6,18 @@ import (
 	"testing"
 
 	"expense-ledger/models"
+
+	"github.com/jackc/pgx/v5/pgxpool"
 )
+
+func TestNewAccountRepository(t *testing.T) {
+	repo := NewAccountRepository(nil)
+	if repo == nil {
+		t.Fatal("NewAccountRepository(nil) should not return nil")
+	}
+	// With a real pool, repo.pool would be set; we only check construction.
+	_ = NewAccountRepository((*pgxpool.Pool)(nil))
+}
 
 func TestAccountRepository_Update_validation(t *testing.T) {
 	// Validation runs before any DB call, so nil pool is safe.

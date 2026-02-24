@@ -23,16 +23,27 @@ type route struct {
 
 // pathMatches returns true if requestPath matches routePath.
 // Route path "/accounts/:id" matches "/accounts/<non-empty segment with no extra slashes>".
+// "/accounts/:id/transactions" and "/accounts/:id/transactions/:txId" match nested paths.
 func pathMatches(routePath, requestPath string) bool {
 	if routePath == requestPath {
 		return true
 	}
 	const accountsIDPrefix = "/accounts/"
-	if routePath == "/accounts/:id" && strings.HasPrefix(requestPath, accountsIDPrefix) {
-		suffix := requestPath[len(accountsIDPrefix):]
-		return suffix != "" && !strings.Contains(suffix, "/")
+	if !strings.HasPrefix(requestPath, accountsIDPrefix) {
+		return false
 	}
-	return false
+	rest := requestPath[len(accountsIDPrefix):]
+	parts := strings.SplitN(rest, "/", 4)
+	switch routePath {
+	case "/accounts/:id":
+		return len(parts) == 1 && parts[0] != ""
+	case "/accounts/:id/transactions":
+		return len(parts) == 2 && parts[0] != "" && parts[1] == "transactions"
+	case "/accounts/:id/transactions/:txId":
+		return len(parts) == 3 && parts[0] != "" && parts[1] == "transactions" && parts[2] != ""
+	default:
+		return false
+	}
 }
 
 // newRouter returns an http.Handler that matches method and path (with optional :id segment).
@@ -75,8 +86,9 @@ func main() {
 		log.Fatalf("migrate: %v", err)
 	}
 	accountRepo := repositories.NewAccountRepository(pool)
-
+	transactionRepo := repositories.NewTransactionRepository(pool)
 	accountHandler := handlers.NewAccountHandler(accountRepo)
+	transactionHandler := handlers.NewTransactionHandler(transactionRepo)
 
 	handler := newRouter(
 		route{http.MethodGet, "/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { w.WriteHeader(http.StatusOK); w.Write([]byte("OK")) })},
@@ -84,6 +96,12 @@ func main() {
 		route{http.MethodPost, "/accounts", http.HandlerFunc(accountHandler.CreateAccount)},
 		route{http.MethodPut, "/accounts/:id", http.HandlerFunc(accountHandler.UpdateAccount)},
 		route{http.MethodDelete, "/accounts/:id", http.HandlerFunc(accountHandler.DeleteAccount)},
+		// Transactions under an account (more specific paths first)
+		route{http.MethodGet, "/accounts/:id/transactions/:txId", http.HandlerFunc(transactionHandler.ListTransactions)},
+		route{http.MethodPut, "/accounts/:id/transactions/:txId", http.HandlerFunc(transactionHandler.UpdateTransaction)},
+		route{http.MethodDelete, "/accounts/:id/transactions/:txId", http.HandlerFunc(transactionHandler.DeleteTransaction)},
+		route{http.MethodGet, "/accounts/:id/transactions", http.HandlerFunc(transactionHandler.ListTransactions)},
+		route{http.MethodPost, "/accounts/:id/transactions", http.HandlerFunc(transactionHandler.CreateTransaction)},
 	)
 
 	addr := ":8080"

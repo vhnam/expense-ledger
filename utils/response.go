@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 const (
@@ -33,4 +34,8 @@ func WriteJSON(response http.ResponseWriter, status int, data any) {
 	response.Header().Set("Content-Type", "application/json")
 	response.WriteHeader(status)
 	_ = json.NewEncoder(response).Encode(data)
+}
+
+func ParseDate(s string) (time.Time, error) {
+	return time.Parse(time.RFC3339, s)
 }

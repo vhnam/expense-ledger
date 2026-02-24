@@ -96,6 +96,17 @@ func TestAccountHandler_ListAccounts(t *testing.T) {
 			wantBody:   `{"data":[{"id":"1","name":"Checking","type":"bank"}],"total":1,"page":1,"pageSize":20}`,
 		},
 		{
+			name:   "success with nil accounts normalized to empty slice",
+			method: http.MethodGet,
+			store: &fakeAccountStore{
+				getAllFunc: func(ctx context.Context, page, pageSize int) ([]*models.Account, int, error) {
+					return nil, 0, nil
+				},
+			},
+			wantStatus: http.StatusOK,
+			wantBody:   `{"data":[],"total":0,"page":1,"pageSize":20}`,
+		},
+		{
 			name:   "repo error",
 			method: http.MethodGet,
 			store: &fakeAccountStore{
@@ -252,6 +263,14 @@ func TestAccountHandler_UpdateAccount(t *testing.T) {
 			body:       `{"name":"x","type":"bank"}`,
 			store:      &fakeAccountStore{},
 			wantStatus: http.StatusMethodNotAllowed,
+		},
+		{
+			name:       "invalid path no prefix",
+			method:     http.MethodPut,
+			path:       "/accounts",
+			body:       `{"name":"x","type":"bank"}`,
+			store:      &fakeAccountStore{},
+			wantStatus: http.StatusBadRequest,
 		},
 		{
 			name:       "invalid path no id",
