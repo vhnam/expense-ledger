@@ -1,0 +1,44 @@
+# Environment and secrets
+.env
+.env.local
+.env.*.local
+
+# Go
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+vendor/
+
+# IDE and OS
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Build and cache
+dist/
+build/
+*.log
+.cache/
+
+# Netlify
+.netlify/
+
+# Docker
+*.log
+
+# Debug and coverage
+__debug_bin
+coverage.out
+coverage.html
+*.prof
+
+# Skills
+.agents/skills/
