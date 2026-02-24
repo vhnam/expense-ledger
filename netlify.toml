@@ -1,2 +1,8 @@
 [build]
-  functions = "netlify/functions"
+  publish = "web/dist/client"
+  command = "vite build"
+  dir = "dist/client"
+  functions = "api/netlify/functions"
+
+[build.environment]
+  GO_VERSION = "1.22"

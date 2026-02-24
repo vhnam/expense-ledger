@@ -1,6 +1,29 @@
 # Expense Ledger
 
-API service for managing accounts. Built with Go, runnable via Docker Compose.
+API and web app for managing accounts and transactions. API is built with Go (Netlify functions); UI lives in `web/`.
+
+## Project structure
+
+```
+expense-ledger/
+├── api/
+│   ├── netlify/functions/api/main.go
+│   ├── internal/
+│   ├── handlers/
+│   ├── repositories/
+│   ├── models/
+│   ├── utils/
+│   └── go.mod
+├── web/
+│   ├── src/
+│   ├── index.html
+│   └── package.json
+├── .env
+├── netlify.toml
+├── Dockerfile
+├── compose.yml
+└── README.md
+```
 
 ## Run
 
@@ -19,6 +42,16 @@ DATABASE_URL=postgres://user:password@ep-xxx.region.aws.neon.tech/neondb?sslmode
 ```
 
 If `DATABASE_URL` is unset, accounts are stored in memory (lost on restart).
+
+### Web UI
+
+From the repo root:
+
+```bash
+cd web && pnpm install && pnpm dev
+```
+
+Then open **http://localhost:5173** (or the port Vite prints).
 
 ## APIs
 
