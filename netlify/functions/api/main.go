@@ -1,19 +1,26 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"log"
 	"net/http"
+	"net/http/httptest"
 	"os"
-	"os/signal"
 	"strings"
-	"syscall"
-	"time"
+	"sync"
+
+	"github.com/aws/aws-lambda-go/events"
+	"github.com/aws/aws-lambda-go/lambda"
+
+	"github.com/jackc/pgx/v5/pgxpool"
 
 	"expense-ledger/handlers"
 	"expense-ledger/internal"
 	"expense-ledger/repositories"
 )
+
+const netlifyFunctionPathPrefix = "/.netlify/functions/api"
 
 type route struct {
 	method  string
@@ -21,9 +28,6 @@ type route struct {
 	handler http.Handler
 }
 
-// pathMatches returns true if requestPath matches routePath.
-// Route path "/accounts/:id" matches "/accounts/<non-empty segment with no extra slashes>".
-// "/accounts/:id/transactions" and "/accounts/:id/transactions/:txId" match nested paths.
 func pathMatches(routePath, requestPath string) bool {
 	if routePath == requestPath {
 		return true
@@ -46,8 +50,6 @@ func pathMatches(routePath, requestPath string) bool {
 	}
 }
 
-// newRouter returns an http.Handler that matches method and path (with optional :id segment).
-// Responds 405 if path exists but method does not, 404 otherwise.
 func newRouter(routes ...route) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		path := r.URL.Path
@@ -71,56 +73,131 @@ func newRouter(routes ...route) http.Handler {
 	})
 }
 
-func main() {
-	ctx := context.Background()
-	pool, err := internal.Connect(ctx)
-	if err != nil {
-		log.Fatalf("database: %v", err)
+var (
+	routerOnce sync.Once
+	router     http.Handler
+	pool       *pgxpool.Pool
+)
+
+func getRouter() http.Handler {
+	routerOnce.Do(func() {
+		ctx := context.Background()
+		var err error
+		pool, err = internal.Connect(ctx)
+		if err != nil {
+			log.Fatalf("database: %v", err)
+		}
+		if pool == nil {
+			log.Fatal("DATABASE_URL is required")
+		}
+		if err := internal.Migrate(ctx, pool); err != nil {
+			log.Fatalf("migrate: %v", err)
+		}
+		accountRepo := repositories.NewAccountRepository(pool)
+		transactionRepo := repositories.NewTransactionRepository(pool)
+		accountHandler := handlers.NewAccountHandler(accountRepo)
+		transactionHandler := handlers.NewTransactionHandler(transactionRepo)
+
+		router = newRouter(
+			route{http.MethodGet, "/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { w.WriteHeader(http.StatusOK); w.Write([]byte("OK")) })},
+			route{http.MethodGet, "/accounts", http.HandlerFunc(accountHandler.ListAccounts)},
+			route{http.MethodPost, "/accounts", http.HandlerFunc(accountHandler.CreateAccount)},
+			route{http.MethodPut, "/accounts/:id", http.HandlerFunc(accountHandler.UpdateAccount)},
+			route{http.MethodDelete, "/accounts/:id", http.HandlerFunc(accountHandler.DeleteAccount)},
+			route{http.MethodGet, "/accounts/:id/transactions/:txId", http.HandlerFunc(transactionHandler.ListTransactions)},
+			route{http.MethodPut, "/accounts/:id/transactions/:txId", http.HandlerFunc(transactionHandler.UpdateTransaction)},
+			route{http.MethodDelete, "/accounts/:id/transactions/:txId", http.HandlerFunc(transactionHandler.DeleteTransaction)},
+			route{http.MethodGet, "/accounts/:id/transactions", http.HandlerFunc(transactionHandler.ListTransactions)},
+			route{http.MethodPost, "/accounts/:id/transactions", http.HandlerFunc(transactionHandler.CreateTransaction)},
+		)
+	})
+	return router
+}
+
+// handler is the Netlify Lambda-compatible entrypoint.
+// See: https://docs.netlify.com/build/functions/lambda-compatibility/?fn-language=go
+func handler(request events.APIGatewayProxyRequest) (*events.APIGatewayProxyResponse, error) {
+	path := request.Path
+	if strings.HasPrefix(path, netlifyFunctionPathPrefix) {
+		path = strings.TrimPrefix(path, netlifyFunctionPathPrefix)
+		if path == "" {
+			path = "/"
+		}
 	}
 
-	if pool == nil {
-		log.Fatal("DATABASE_URL is required")
-	}
-	defer pool.Close()
-	if err := internal.Migrate(ctx, pool); err != nil {
-		log.Fatalf("migrate: %v", err)
-	}
-	accountRepo := repositories.NewAccountRepository(pool)
-	transactionRepo := repositories.NewTransactionRepository(pool)
-	accountHandler := handlers.NewAccountHandler(accountRepo)
-	transactionHandler := handlers.NewTransactionHandler(transactionRepo)
-
-	handler := newRouter(
-		route{http.MethodGet, "/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { w.WriteHeader(http.StatusOK); w.Write([]byte("OK")) })},
-		route{http.MethodGet, "/accounts", http.HandlerFunc(accountHandler.ListAccounts)},
-		route{http.MethodPost, "/accounts", http.HandlerFunc(accountHandler.CreateAccount)},
-		route{http.MethodPut, "/accounts/:id", http.HandlerFunc(accountHandler.UpdateAccount)},
-		route{http.MethodDelete, "/accounts/:id", http.HandlerFunc(accountHandler.DeleteAccount)},
-		// Transactions under an account (more specific paths first)
-		route{http.MethodGet, "/accounts/:id/transactions/:txId", http.HandlerFunc(transactionHandler.ListTransactions)},
-		route{http.MethodPut, "/accounts/:id/transactions/:txId", http.HandlerFunc(transactionHandler.UpdateTransaction)},
-		route{http.MethodDelete, "/accounts/:id/transactions/:txId", http.HandlerFunc(transactionHandler.DeleteTransaction)},
-		route{http.MethodGet, "/accounts/:id/transactions", http.HandlerFunc(transactionHandler.ListTransactions)},
-		route{http.MethodPost, "/accounts/:id/transactions", http.HandlerFunc(transactionHandler.CreateTransaction)},
+	req, err := http.NewRequestWithContext(
+		context.Background(),
+		request.HTTPMethod,
+		path,
+		bytes.NewReader([]byte(request.Body)),
 	)
+	if err != nil {
+		return &events.APIGatewayProxyResponse{
+			StatusCode: http.StatusBadRequest,
+			Body:       `{"error":"invalid request"}`,
+			Headers:    map[string]string{"Content-Type": "application/json"},
+		}, nil
+	}
+
+	// Query string
+	q := req.URL.Query()
+	for k, v := range request.QueryStringParameters {
+		q.Set(k, v)
+	}
+	if len(request.MultiValueQueryStringParameters) > 0 {
+		for k, vals := range request.MultiValueQueryStringParameters {
+			for _, v := range vals {
+				q.Add(k, v)
+			}
+		}
+	}
+	req.URL.RawQuery = q.Encode()
+
+	// Headers
+	for k, v := range request.Headers {
+		req.Header.Set(k, v)
+	}
+	req.RequestURI = req.URL.RequestURI()
+
+	rec := httptest.NewRecorder()
+	getRouter().ServeHTTP(rec, req)
+
+	// Convert response headers to map[string]string (single value per key)
+	resHeaders := make(map[string]string)
+	for k, v := range rec.Header() {
+		if len(v) > 0 {
+			resHeaders[k] = v[0]
+		}
+	}
+
+	return &events.APIGatewayProxyResponse{
+		StatusCode:      rec.Code,
+		Headers:         resHeaders,
+		Body:            rec.Body.String(),
+		IsBase64Encoded: false,
+	}, nil
+}
+
+func main() {
+	// Allow local HTTP server when RUN_HTTP_SERVER=1 (e.g. for netlify dev or local testing)
+	if os.Getenv("RUN_HTTP_SERVER") == "1" {
+		runHTTPServer()
+		return
+	}
+	lambda.Start(handler)
+}
+
+// runHTTPServer starts a local HTTP server for development.
+func runHTTPServer() {
+	_ = getRouter() // init DB and router
+	defer pool.Close()
 
 	addr := ":8080"
 	if p := os.Getenv("PORT"); p != "" {
 		addr = ":" + p
 	}
-	server := &http.Server{Addr: addr, Handler: handler}
-	go func() {
-		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Printf("server: %v", err)
-		}
-	}()
-
-	ch := make(chan os.Signal, 1)
-	signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
-	<-ch
-	shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-	if err := server.Shutdown(shutdownCtx); err != nil {
-		log.Printf("shutdown: %v", err)
+	log.Printf("listening on %s", addr)
+	if err := http.ListenAndServe(addr, getRouter()); err != nil {
+		log.Fatal(err)
 	}
 }
