@@ -1,6 +1,6 @@
 [build]
   publish = "web/dist/client"
-  command = "npm run build"
+  command = "cd web && npm ci && npm run build"
   functions = "api/netlify/functions"
 
 [build.environment]
