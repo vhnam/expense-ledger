@@ -1,7 +1,6 @@
 [build]
   publish = "web/dist/client"
-  command = "vite build"
-  dir = "dist/client"
+  command = "npm run build"
   functions = "api/netlify/functions"
 
 [build.environment]
