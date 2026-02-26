@@ -1,7 +1,7 @@
 [build]
-  publish = "web/dist/client"
-  command = "cd web && pnpm install && pnpm build"
-  functions = "api/netlify/functions"
-
-[build.environment]
-  GO_VERSION = "1.22"
+  command = "vite build"
+  dir = "dist/client"
+[dev]
+  command = "npm run dev"
+  targetPort = 3000
+  port = 8888

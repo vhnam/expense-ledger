@@ -1,150 +1,275 @@
-# Expense Ledger
+Welcome to your new TanStack Start app! 
 
-API and web app for managing accounts and transactions. API is built with Go (Netlify functions); UI lives in `web/`.
+# Getting Started
 
-## Project structure
-
-```
-expense-ledger/
-├── api/
-│   ├── netlify/functions/api/main.go
-│   ├── internal/
-│   ├── handlers/
-│   ├── repositories/
-│   ├── models/
-│   ├── utils/
-│   └── go.mod
-├── web/
-│   ├── src/
-│   ├── index.html
-│   └── package.json
-├── .env
-├── netlify.toml
-├── Dockerfile
-├── compose.yml
-└── README.md
-```
-
-## Run
+To run this application:
 
 ```bash
-docker compose up
+pnpm install
+pnpm dev
 ```
 
-Server listens on **http://localhost:8080**.
+# Building For Production
 
-### Database (Neon)
-
-Set `DATABASE_URL` in `.env` to your [Neon](https://neon.tech) (or any Postgres) connection string to persist accounts. Example:
-
-```
-DATABASE_URL=postgres://user:password@ep-xxx.region.aws.neon.tech/neondb?sslmode=require
-```
-
-If `DATABASE_URL` is unset, accounts are stored in memory (lost on restart).
-
-### Web UI
-
-From the repo root:
+To build this application for production:
 
 ```bash
-cd web && pnpm install && pnpm dev
+pnpm build
 ```
 
-Then open **http://localhost:5173** (or the port Vite prints).
+## Testing
 
-## APIs
-
-Base URL: `http://localhost:8080`
-
-### Health
-
-| Method | Path | Description |
-|--------|------|-------------|
-| `GET`  | `/`  | Health check. Returns plain text `OK`. |
-
-**Example**
+This project uses [Vitest](https://vitest.dev/) for testing. You can run the tests with:
 
 ```bash
-curl http://localhost:8080/
+pnpm test
 ```
 
-**Response:** `200 OK` — body: `OK`
+## Styling
 
----
+This project uses [Tailwind CSS](https://tailwindcss.com/) for styling.
 
-### Create account
+### Removing Tailwind CSS
 
-| Method | Path       | Description      |
-|--------|------------|------------------|
-| `POST` | `/accounts`| Create an account.|
+If you prefer not to use Tailwind CSS:
 
-**Request**
+1. Remove the demo pages in `src/routes/demo/`
+2. Replace the Tailwind import in `src/styles.css` with your own styles
+3. Remove `tailwindcss()` from the plugins array in `vite.config.ts`
+4. Uninstall the packages: `pnpm add @tailwindcss/vite tailwindcss --dev`
 
-- **Content-Type:** `application/json`
-- **Body:**
+## Linting & Formatting
 
-| Field   | Type   | Required | Description   |
-|---------|--------|----------|---------------|
-| `name`  | string | yes      | Account name. |
-| `type`  | string | no       | Account type. |
 
-**Example**
+This project uses [eslint](https://eslint.org/) and [prettier](https://prettier.io/) for linting and formatting. Eslint is configured using [tanstack/eslint-config](https://tanstack.com/config/latest/docs/eslint). The following scripts are available:
 
 ```bash
-curl -X POST http://localhost:8080/accounts \
-  -H "Content-Type: application/json" \
-  -d '{"name":"Checking","type":"bank"}'
+pnpm lint
+pnpm format
+pnpm check
 ```
 
-**Response:** `201 Created` — body: created account (JSON)
 
-```json
-{
-  "ID": "1",
-  "Name": "Checking",
-  "Type": "bank"
+## Setting up Neon
+
+When running the `dev` command, the `@neondatabase/vite-plugin-postgres` will identify there is not a database setup. It will then create and seed a claimable database.
+
+It is the same process as [Neon Launchpad](https://neon.new).
+
+> [!IMPORTANT]  
+> Claimable databases expire in 72 hours.
+
+
+## Shadcn
+
+Add components using the latest version of [Shadcn](https://ui.shadcn.com/).
+
+```bash
+pnpm dlx shadcn@latest add button
+```
+
+
+## T3Env
+
+- You can use T3Env to add type safety to your environment variables.
+- Add Environment variables to the `src/env.mjs` file.
+- Use the environment variables in your code.
+
+### Usage
+
+```ts
+import { env } from "@/env";
+
+console.log(env.VITE_APP_TITLE);
+```
+
+
+
+
+
+## Setting up Better Auth
+
+1. Generate and set the `BETTER_AUTH_SECRET` environment variable in your `.env.local`:
+
+   ```bash
+   pnpm dlx @better-auth/cli secret
+   ```
+
+2. Visit the [Better Auth documentation](https://www.better-auth.com) to unlock the full potential of authentication in your app.
+
+### Adding a Database (Optional)
+
+Better Auth can work in stateless mode, but to persist user data, add a database:
+
+```typescript
+// src/lib/auth.ts
+import { betterAuth } from "better-auth";
+import { Pool } from "pg";
+
+export const auth = betterAuth({
+  database: new Pool({
+    connectionString: process.env.DATABASE_URL,
+  }),
+  // ... rest of config
+});
+```
+
+Then run migrations:
+
+```bash
+pnpm dlx @better-auth/cli migrate
+```
+
+
+
+## Routing
+
+This project uses [TanStack Router](https://tanstack.com/router) with file-based routing. Routes are managed as files in `src/routes`.
+
+### Adding A Route
+
+To add a new route to your application just add a new file in the `./src/routes` directory.
+
+TanStack will automatically generate the content of the route file for you.
+
+Now that you have two routes you can use a `Link` component to navigate between them.
+
+### Adding Links
+
+To use SPA (Single Page Application) navigation you will need to import the `Link` component from `@tanstack/react-router`.
+
+```tsx
+import { Link } from "@tanstack/react-router";
+```
+
+Then anywhere in your JSX you can use it like so:
+
+```tsx
+<Link to="/about">About</Link>
+```
+
+This will create a link that will navigate to the `/about` route.
+
+More information on the `Link` component can be found in the [Link documentation](https://tanstack.com/router/v1/docs/framework/react/api/router/linkComponent).
+
+### Using A Layout
+
+In the File Based Routing setup the layout is located in `src/routes/__root.tsx`. Anything you add to the root route will appear in all the routes. The route content will appear in the JSX where you render `{children}` in the `shellComponent`.
+
+Here is an example layout that includes a header:
+
+```tsx
+import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
+
+export const Route = createRootRoute({
+  head: () => ({
+    meta: [
+      { charSet: 'utf-8' },
+      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+      { title: 'My App' },
+    ],
+  }),
+  shellComponent: ({ children }) => (
+    <html lang="en">
+      <head>
+        <HeadContent />
+      </head>
+      <body>
+        <header>
+          <nav>
+            <Link to="/">Home</Link>
+            <Link to="/about">About</Link>
+          </nav>
+        </header>
+        {children}
+        <Scripts />
+      </body>
+    </html>
+  ),
+})
+```
+
+More information on layouts can be found in the [Layouts documentation](https://tanstack.com/router/latest/docs/framework/react/guide/routing-concepts#layouts).
+
+## Server Functions
+
+TanStack Start provides server functions that allow you to write server-side code that seamlessly integrates with your client components.
+
+```tsx
+import { createServerFn } from '@tanstack/react-start'
+
+const getServerTime = createServerFn({
+  method: 'GET',
+}).handler(async () => {
+  return new Date().toISOString()
+})
+
+// Use in a component
+function MyComponent() {
+  const [time, setTime] = useState('')
+  
+  useEffect(() => {
+    getServerTime().then(setTime)
+  }, [])
+  
+  return <div>Server time: {time}</div>
 }
 ```
 
-**Errors**
+## API Routes
 
-- `400 Bad Request` — invalid JSON or missing `name`
-- `405 Method Not Allowed` — non-POST method
-- `500 Internal Server Error` — create failed
+You can create API routes by using the `server` property in your route definitions:
 
----
+```tsx
+import { createFileRoute } from '@tanstack/react-router'
+import { json } from '@tanstack/react-start'
 
-### List accounts
-
-| Method | Path       | Description        |
-|--------|------------|--------------------|
-| `GET`  | `/accounts`| List all accounts. |
-
-**Example**
-
-```bash
-curl http://localhost:8080/accounts
-```
-
-**Response:** `200 OK` — body: array of accounts (JSON)
-
-```json
-[
-  {
-    "ID": "1",
-    "Name": "Checking",
-    "Type": "bank"
+export const Route = createFileRoute('/api/hello')({
+  server: {
+    handlers: {
+      GET: () => json({ message: 'Hello, World!' }),
+    },
   },
-  {
-    "ID": "2",
-    "Name": "Savings",
-    "Type": "bank"
-  }
-]
+})
 ```
 
-**Errors**
+## Data Fetching
 
-- `405 Method Not Allowed` — non-GET method
-- `500 Internal Server Error` — list failed
+There are multiple ways to fetch data in your application. You can use TanStack Query to fetch data from a server. But you can also use the `loader` functionality built into TanStack Router to load the data for a route before it's rendered.
+
+For example:
+
+```tsx
+import { createFileRoute } from '@tanstack/react-router'
+
+export const Route = createFileRoute('/people')({
+  loader: async () => {
+    const response = await fetch('https://swapi.dev/api/people')
+    return response.json()
+  },
+  component: PeopleComponent,
+})
+
+function PeopleComponent() {
+  const data = Route.useLoaderData()
+  return (
+    <ul>
+      {data.results.map((person) => (
+        <li key={person.name}>{person.name}</li>
+      ))}
+    </ul>
+  )
+}
+```
+
+Loaders simplify your data fetching logic dramatically. Check out more information in the [Loader documentation](https://tanstack.com/router/latest/docs/framework/react/guide/data-loading#loader-parameters).
+
+# Demo files
+
+Files prefixed with `demo` can be safely deleted. They are there to provide a starting point for you to play around with the features you've installed.
+
+# Learn More
+
+You can learn more about all of the offerings from TanStack in the [TanStack documentation](https://tanstack.com).
+
+For TanStack Start specific documentation, visit [TanStack Start](https://tanstack.com/start).
