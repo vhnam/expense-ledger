@@ -1,6 +1,12 @@
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
 [build]
   command = "vite build"
   dir = "dist/client"
+
 [dev]
   command = "npm run dev"
   targetPort = 3000
