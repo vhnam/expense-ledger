@@ -3,7 +3,7 @@ import { Link } from '@tanstack/react-router'
 import BetterAuthHeader from '../integrations/better-auth/header-user.tsx'
 
 import { useState } from 'react'
-import { IconHome, IconMenu, IconX } from '@tabler/icons-react'
+import { IconHome, IconMenu, IconWallet, IconX } from '@tabler/icons-react'
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false)
@@ -57,6 +57,18 @@ export default function Header() {
           >
             <IconHome size={20} />
             <span className="font-medium">Home</span>
+          </Link>
+          <Link
+            to="/accounts"
+            onClick={() => setIsOpen(false)}
+            className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 transition-colors mb-2"
+            activeProps={{
+              className:
+                'flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2',
+            }}
+          >
+            <IconWallet size={20} />
+            <span className="font-medium">Accounts</span>
           </Link>
 
           {/* Demo Links Start */}
