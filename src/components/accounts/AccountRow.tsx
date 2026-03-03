@@ -21,16 +21,22 @@ export function AccountRow({ account, onEdit, onDelete }: AccountRowProps) {
     <Card>
       <CardHeader className="pb-2">
         <CardTitle className="text-base">{account.name}</CardTitle>
-        <p className="text-sm text-muted-foreground capitalize">{account.type}</p>
+        <p className="text-sm text-muted-foreground capitalize">
+          {account.type}
+        </p>
       </CardHeader>
       <CardContent className="pb-2" />
       <CardFooter className="flex flex-wrap gap-2 pt-2">
-        <Button variant="outline" size="sm" asChild>
-          <Link to="/accounts/$accountId" params={{ accountId: account.id }}>
-            <IconList className="size-4" />
-            Transactions
-          </Link>
-        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          render={
+            <Link to="/accounts/$accountId" params={{ accountId: account.id }}>
+              <IconList className="size-4" />
+              Transactions
+            </Link>
+          }
+        />
         <Button
           variant="outline"
           size="sm"

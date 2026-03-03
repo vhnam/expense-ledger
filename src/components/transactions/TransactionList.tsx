@@ -27,7 +27,7 @@ export function TransactionList({
         <thead>
           <tr className="border-b border-border bg-muted/50">
             <th className="text-left py-3 px-4 font-medium">Date</th>
-            <th className="text-left py-3 px-4 font-medium">Amount</th>
+            <th className="text-right py-3 px-4 font-medium">Amount</th>
             <th className="text-left py-3 px-4 font-medium">Type</th>
             <th className="text-left py-3 px-4 font-medium">Description</th>
             <th className="w-20" aria-label="Actions" />

@@ -1,7 +1,9 @@
+import { env } from "@/env"
+
 /**
  * Base URL for Netlify Functions (api/ folder). Use relative path for dev and production.
  */
-const NETLIFY_FUNCTIONS = '/.netlify/functions/api'
+const NETLIFY_FUNCTIONS = env.VITE_NETLIFY_FUNCTIONS_URL
 
 export function accountsUrl(): string {
   return `${NETLIFY_FUNCTIONS}/accounts`

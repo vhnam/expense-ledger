@@ -2,24 +2,7 @@ import type { Transaction } from '@/types/ledger'
 import { Button } from '@/components/ui/button'
 import { IconEdit, IconTrash } from '@tabler/icons-react'
 import { cn } from '@/lib/utils'
-
-function formatAmount(amount: string, type: Transaction['type']): string {
-  const n = Number(amount)
-  if (Number.isNaN(n)) return amount
-  const formatted = new Intl.NumberFormat(undefined, {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(Math.abs(n))
-  return type === 'income' ? `+${formatted}` : `−${formatted}`
-}
-
-function formatDate(iso: string): string {
-  const d = new Date(iso)
-  if (Number.isNaN(d.getTime())) return iso
-  return new Intl.DateTimeFormat(undefined, {
-    dateStyle: 'medium',
-  }).format(d)
-}
+import { formatAmount, formatDate } from '@/utils/format'
 
 type TransactionRowProps = {
   transaction: Transaction
@@ -36,16 +19,22 @@ export function TransactionRow({
 
   return (
     <tr className="border-b border-border last:border-0">
-      <td className="py-3 pr-4 text-muted-foreground whitespace-nowrap">
+      <td className="py-3 pr-4 text-muted-foreground whitespace-nowrap pl-4">
         {formatDate(transaction.date)}
       </td>
-      <td className="py-3 pr-4">
-        <span className={cn(isIncome ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400')}>
+      <td className="py-3 px-4 text-right">
+        <span
+          className={cn(
+            isIncome
+              ? 'text-green-600 dark:text-green-400'
+              : 'text-red-600 dark:text-red-400',
+          )}
+        >
           {formatAmount(transaction.amount, transaction.type)}
         </span>
       </td>
-      <td className="py-3 pr-4 capitalize">{transaction.type}</td>
-      <td className="py-3 pr-4 text-muted-foreground max-w-[200px] truncate">
+      <td className="py-3 px-4 capitalize">{transaction.type}</td>
+      <td className="py-3 px-4 text-muted-foreground max-w-[200px] truncate">
         {transaction.description || '—'}
       </td>
       <td className="py-3 pl-2 flex gap-1 justify-end">

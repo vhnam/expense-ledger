@@ -10,7 +10,12 @@ import {
 } from '@/components/ui/dialog'
 import { AccountList } from '@/components/accounts/AccountList'
 import { AccountForm } from '@/components/accounts/AccountForm'
-import { useAccounts, useCreateAccount, useUpdateAccount, useDeleteAccount } from '@/hooks/use-accounts'
+import {
+  useAccounts,
+  useCreateAccount,
+  useUpdateAccount,
+  useDeleteAccount,
+} from '@/hooks/use-accounts'
 import type { Account, AccountCreate } from '@/types/ledger'
 import { IconPlus } from '@tabler/icons-react'
 
@@ -47,7 +52,7 @@ function AccountsPage() {
             setFormOpen(false)
             setEditingAccount(null)
           },
-        }
+        },
       )
     } else {
       createMutation.mutate(data, {
@@ -73,18 +78,22 @@ function AccountsPage() {
   const handleDeleteCancel = () => setDeleteTarget(null)
 
   const isPending =
-    createMutation.isPending || updateMutation.isPending || deleteMutation.isPending
+    createMutation.isPending ||
+    updateMutation.isPending ||
+    deleteMutation.isPending
 
   if (error) {
     return (
       <div className="container max-w-4xl py-8">
-        <p className="text-destructive">Failed to load accounts: {error.message}</p>
+        <p className="text-destructive">
+          Failed to load accounts: {error.message}
+        </p>
       </div>
     )
   }
 
   return (
-    <div className="container max-w-4xl py-8">
+    <div className="container max-w-4xl py-8 mx-auto px-4 lg:px-6">
       <div className="flex flex-col gap-6">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <h1 className="text-2xl font-semibold tracking-tight">Accounts</h1>
@@ -114,7 +123,9 @@ function AccountsPage() {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editingAccount ? 'Edit account' : 'Add account'}</DialogTitle>
+            <DialogTitle>
+              {editingAccount ? 'Edit account' : 'Add account'}
+            </DialogTitle>
           </DialogHeader>
           <AccountForm
             account={editingAccount}
@@ -135,11 +146,16 @@ function AccountsPage() {
           <DialogHeader>
             <DialogTitle>Delete account</DialogTitle>
             <p className="text-sm text-muted-foreground">
-              Delete “{deleteTarget?.name}”? This will also delete all its transactions.
+              Delete “{deleteTarget?.name}”? This will also delete all its
+              transactions.
             </p>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={handleDeleteCancel} disabled={isPending}>
+            <Button
+              variant="outline"
+              onClick={handleDeleteCancel}
+              disabled={isPending}
+            >
               Cancel
             </Button>
             <Button

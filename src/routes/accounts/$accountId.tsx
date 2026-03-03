@@ -19,6 +19,7 @@ import {
 import { useAccount } from '@/hooks/use-accounts'
 import type { Transaction } from '@/types/ledger'
 import { IconPlus } from '@tabler/icons-react'
+import TransactionOverview from '@/components/transactions/TransactionOverview'
 
 export const Route = createFileRoute('/accounts/$accountId')({
   component: AccountDetailPage,
@@ -26,14 +27,23 @@ export const Route = createFileRoute('/accounts/$accountId')({
 
 function AccountDetailPage() {
   const { accountId } = Route.useParams()
-  const { data: account, isLoading: accountLoading, error: accountError } = useAccount(accountId)
-  const { data: transactions = [], isLoading: txLoading, error: txError } = useTransactions(accountId)
+  const {
+    data: account,
+    isLoading: accountLoading,
+    error: accountError,
+  } = useAccount(accountId)
+  const {
+    data: transactions = [],
+    isLoading: txLoading,
+    error: txError,
+  } = useTransactions(accountId)
   const createMutation = useCreateTransaction(accountId)
   const updateMutation = useUpdateTransaction(accountId)
   const deleteMutation = useDeleteTransaction(accountId)
 
   const [formOpen, setFormOpen] = useState(false)
-  const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null)
+  const [editingTransaction, setEditingTransaction] =
+    useState<Transaction | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<Transaction | null>(null)
 
   const handleAdd = () => {
@@ -68,7 +78,7 @@ function AccountDetailPage() {
             setFormOpen(false)
             setEditingTransaction(null)
           },
-        }
+        },
       )
     } else {
       createMutation.mutate(
@@ -80,7 +90,7 @@ function AccountDetailPage() {
         },
         {
           onSuccess: () => setFormOpen(false),
-        }
+        },
       )
     }
   }
@@ -100,13 +110,20 @@ function AccountDetailPage() {
   const handleDeleteCancel = () => setDeleteTarget(null)
 
   const isPending =
-    createMutation.isPending || updateMutation.isPending || deleteMutation.isPending
+    createMutation.isPending ||
+    updateMutation.isPending ||
+    deleteMutation.isPending
 
   if (accountError) {
     return (
       <div className="container max-w-4xl py-8">
-        <p className="text-destructive">Failed to load account: {accountError.message}</p>
-        <Link to="/accounts" className="text-sm text-muted-foreground hover:text-foreground mt-2 inline-block">
+        <p className="text-destructive">
+          Failed to load account: {accountError.message}
+        </p>
+        <Link
+          to="/accounts"
+          className="text-sm text-muted-foreground hover:text-foreground mt-2 inline-block"
+        >
           ← Back to accounts
         </Link>
       </div>
@@ -116,13 +133,15 @@ function AccountDetailPage() {
   if (txError) {
     return (
       <div className="container max-w-4xl py-8">
-        <p className="text-destructive">Failed to load transactions: {txError.message}</p>
+        <p className="text-destructive">
+          Failed to load transactions: {txError.message}
+        </p>
       </div>
     )
   }
 
   return (
-    <div className="container max-w-4xl py-8">
+    <div className="container max-w-4xl py-8 px-4 lg:px-6 mx-auto">
       <div className="mb-6 flex flex-wrap items-center gap-2">
         <Link
           to="/accounts"
@@ -132,8 +151,11 @@ function AccountDetailPage() {
         </Link>
         {account && (
           <span className="text-muted-foreground">
-            / <span className="text-foreground font-medium">{account.name}</span>
-            <span className="capitalize text-muted-foreground ml-1">({account.type})</span>
+            /{' '}
+            <span className="text-foreground font-medium">{account.name}</span>
+            <span className="capitalize text-muted-foreground ml-1">
+              ({account.type})
+            </span>
           </span>
         )}
       </div>
@@ -141,7 +163,11 @@ function AccountDetailPage() {
       <div className="flex flex-col gap-6">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <h1 className="text-2xl font-semibold tracking-tight">
-            {accountLoading ? 'Account' : account ? `${account.name} — Transactions` : 'Transactions'}
+            {accountLoading
+              ? 'Account'
+              : account
+                ? `${account.name} — Transactions`
+                : 'Transactions'}
           </h1>
           <Button onClick={handleAdd}>
             <IconPlus className="size-4" />
@@ -152,11 +178,14 @@ function AccountDetailPage() {
         {txLoading ? (
           <p className="text-muted-foreground">Loading transactions…</p>
         ) : (
-          <TransactionList
-            transactions={transactions}
-            onEdit={handleEdit}
-            onDelete={handleDeleteClick}
-          />
+          <div className="space-y-6">
+            <TransactionOverview transactions={transactions} />
+            <TransactionList
+              transactions={transactions}
+              onEdit={handleEdit}
+              onDelete={handleDeleteClick}
+            />
+          </div>
         )}
       </div>
 
@@ -197,7 +226,11 @@ function AccountDetailPage() {
             </p>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={handleDeleteCancel} disabled={isPending}>
+            <Button
+              variant="outline"
+              onClick={handleDeleteCancel}
+              disabled={isPending}
+            >
               Cancel
             </Button>
             <Button
