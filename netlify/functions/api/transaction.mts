@@ -42,20 +42,35 @@ export default async (req: Request, _context: Context) => {
     }
 
     if (method === 'PATCH') {
-      let body: { amount?: number | string; date?: string; description?: string; type?: string }
+      let body: {
+        amount?: number | string
+        date?: string
+        description?: string
+        type?: string
+      }
       try {
         body = (await req.json()) as typeof body
       } catch {
         return err('Invalid JSON', 400)
       }
       const amount = body.amount != null ? Number(body.amount) : undefined
-      if (amount !== undefined && Number.isNaN(amount)) return err('amount must be a number', 400)
-      const date = body.date !== undefined ? String(body.date).trim() : undefined
-      const description = body.description !== undefined ? String(body.description) : undefined
+      if (amount !== undefined && Number.isNaN(amount))
+        return err('amount must be a number', 400)
+      const date =
+        body.date !== undefined ? String(body.date).trim() : undefined
+      const description =
+        body.description !== undefined ? String(body.description) : undefined
       const type =
-        body.type === 'income' || body.type === 'expense' ? body.type : undefined
+        body.type === 'income' || body.type === 'expense'
+          ? body.type
+          : undefined
 
-      if (amount === undefined && date === undefined && description === undefined && type === undefined) {
+      if (
+        amount === undefined &&
+        date === undefined &&
+        description === undefined &&
+        type === undefined
+      ) {
         return err('No fields to update', 400)
       }
 
@@ -67,7 +82,8 @@ export default async (req: Request, _context: Context) => {
 
       const newAmount = amount !== undefined ? amount : Number(existing.amount)
       const newDate = date !== undefined ? date : String(existing.date)
-      const newDescription = description !== undefined ? description : String(existing.description)
+      const newDescription =
+        description !== undefined ? description : String(existing.description)
       const newType = type !== undefined ? type : String(existing.type)
 
       const [updated] = await sql`

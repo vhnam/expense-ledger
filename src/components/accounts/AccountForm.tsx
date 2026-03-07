@@ -70,7 +70,12 @@ export function AccountForm({
         </Select>
       </div>
       <div className="flex justify-end gap-2">
-        <Button type="button" variant="outline" onClick={onCancel} disabled={isPending}>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onCancel}
+          disabled={isPending}
+        >
           Cancel
         </Button>
         <Button type="submit" disabled={isPending}>

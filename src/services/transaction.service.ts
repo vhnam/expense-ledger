@@ -22,7 +22,7 @@ async function handleResponse<T>(res: Response): Promise<T> {
 }
 
 export async function fetchTransactions(
-  accountId: string
+  accountId: string,
 ): Promise<Transaction[]> {
   const res = await fetch(transactionsUrl(accountId))
   return handleResponse<Transaction[]>(res)
@@ -30,7 +30,7 @@ export async function fetchTransactions(
 
 export async function createTransaction(
   accountId: string,
-  data: Omit<TransactionCreate, 'account_id'>
+  data: Omit<TransactionCreate, 'account_id'>,
 ): Promise<Transaction> {
   const res = await fetch(transactionsUrl(accountId), {
     method: 'POST',
@@ -42,7 +42,7 @@ export async function createTransaction(
 
 export async function fetchTransaction(
   accountId: string,
-  id: string
+  id: string,
 ): Promise<Transaction> {
   const res = await fetch(transactionUrl(accountId, id))
   return handleResponse<Transaction>(res)
@@ -51,7 +51,7 @@ export async function fetchTransaction(
 export async function updateTransaction(
   accountId: string,
   id: string,
-  data: TransactionUpdate
+  data: TransactionUpdate,
 ): Promise<Transaction> {
   const res = await fetch(transactionUrl(accountId, id), {
     method: 'PATCH',
@@ -63,7 +63,7 @@ export async function updateTransaction(
 
 export async function deleteTransaction(
   accountId: string,
-  id: string
+  id: string,
 ): Promise<void> {
   const res = await fetch(transactionUrl(accountId, id), { method: 'DELETE' })
   await handleResponse<void>(res)

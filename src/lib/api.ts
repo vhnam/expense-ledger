@@ -1,4 +1,4 @@
-import { env } from "@/env"
+import { env } from '@/env'
 
 /**
  * Base URL for Netlify Functions (api/ folder). Use relative path for dev and production.

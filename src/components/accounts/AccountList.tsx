@@ -21,11 +21,7 @@ export function AccountList({ accounts, onEdit, onDelete }: AccountListProps) {
     <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" role="list">
       {accounts.map((account) => (
         <li key={account.id}>
-          <AccountRow
-            account={account}
-            onEdit={onEdit}
-            onDelete={onDelete}
-          />
+          <AccountRow account={account} onEdit={onEdit} onDelete={onDelete} />
         </li>
       ))}
     </ul>

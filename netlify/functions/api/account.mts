@@ -54,15 +54,15 @@ export default async (req: Request, _context: Context) => {
       }
       let updated: { id: string; name: string; type: string } | null
       if (name !== undefined && type !== undefined) {
-        [updated] = await sql`
+        ;[updated] = await sql`
           UPDATE accounts SET name = ${name}, type = ${type} WHERE id = ${id} RETURNING id, name, type
         `
       } else if (name !== undefined) {
-        [updated] = await sql`
+        ;[updated] = await sql`
           UPDATE accounts SET name = ${name} WHERE id = ${id} RETURNING id, name, type
         `
       } else {
-        [updated] = await sql`
+        ;[updated] = await sql`
           UPDATE accounts SET type = ${type} WHERE id = ${id} RETURNING id, name, type
         `
       }

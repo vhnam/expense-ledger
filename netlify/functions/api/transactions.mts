@@ -52,13 +52,17 @@ export default async (req: Request, _context: Context) => {
       } catch {
         return err('Invalid JSON', 400)
       }
-      if (body.account_id !== accountId) return err('account_id must match accountId', 400)
+      if (body.account_id !== accountId)
+        return err('account_id must match accountId', 400)
       const amount = body.amount != null ? Number(body.amount) : NaN
-      if (Number.isNaN(amount)) return err('amount is required and must be a number', 400)
+      if (Number.isNaN(amount))
+        return err('amount is required and must be a number', 400)
       const date = typeof body.date === 'string' ? body.date.trim() : ''
       if (!date) return err('date is required', 400)
-      const description = typeof body.description === 'string' ? body.description : ''
-      const type = body.type === 'income' || body.type === 'expense' ? body.type : ''
+      const description =
+        typeof body.description === 'string' ? body.description : ''
+      const type =
+        body.type === 'income' || body.type === 'expense' ? body.type : ''
       if (!type) return err('type must be income or expense', 400)
 
       const [row] = await sql`

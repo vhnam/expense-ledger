@@ -1,8 +1,4 @@
-import {
-  useQuery,
-  useMutation,
-  useQueryClient,
-} from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import type { AccountCreate, AccountUpdate } from '@/types/ledger'
 import {
   fetchAccounts,
@@ -25,7 +21,10 @@ export function useAccounts() {
   })
 }
 
-export function useAccount(id: string | undefined, options?: { enabled: boolean }) {
+export function useAccount(
+  id: string | undefined,
+  options?: { enabled: boolean },
+) {
   return useQuery({
     queryKey: accountKeys.detail(id ?? ''),
     queryFn: () => fetchAccount(id!),

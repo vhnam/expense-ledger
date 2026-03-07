@@ -38,7 +38,7 @@ export async function fetchAccount(id: string): Promise<Account> {
 
 export async function updateAccount(
   id: string,
-  data: AccountUpdate
+  data: AccountUpdate,
 ): Promise<Account> {
   const res = await fetch(accountUrl(id), {
     method: 'PATCH',

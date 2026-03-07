@@ -1,8 +1,4 @@
-import {
-  useQuery,
-  useMutation,
-  useQueryClient,
-} from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import type { TransactionUpdate } from '@/types/ledger'
 import {
   fetchTransactions,
@@ -29,7 +25,7 @@ export function useTransactions(accountId: string | undefined) {
 
 export function useTransaction(
   accountId: string | undefined,
-  id: string | undefined
+  id: string | undefined,
 ) {
   return useQuery({
     queryKey: transactionKeys.detail(accountId ?? '', id ?? ''),
@@ -41,10 +37,13 @@ export function useTransaction(
 export function useCreateTransaction(accountId: string) {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (data: Omit<Parameters<typeof createTransaction>[1], 'account_id'>) =>
-      createTransaction(accountId, data),
+    mutationFn: (
+      data: Omit<Parameters<typeof createTransaction>[1], 'account_id'>,
+    ) => createTransaction(accountId, data),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: transactionKeys.list(accountId) })
+      void queryClient.invalidateQueries({
+        queryKey: transactionKeys.list(accountId),
+      })
     },
   })
 }
@@ -52,15 +51,12 @@ export function useCreateTransaction(accountId: string) {
 export function useUpdateTransaction(accountId: string) {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({
-      id,
-      data,
-    }: {
-      id: string
-      data: TransactionUpdate
-    }) => updateTransaction(accountId, id, data),
+    mutationFn: ({ id, data }: { id: string; data: TransactionUpdate }) =>
+      updateTransaction(accountId, id, data),
     onSuccess: (_, { id }) => {
-      void queryClient.invalidateQueries({ queryKey: transactionKeys.list(accountId) })
+      void queryClient.invalidateQueries({
+        queryKey: transactionKeys.list(accountId),
+      })
       void queryClient.invalidateQueries({
         queryKey: transactionKeys.detail(accountId, id),
       })
@@ -73,7 +69,9 @@ export function useDeleteTransaction(accountId: string) {
   return useMutation({
     mutationFn: (id: string) => deleteTransaction(accountId, id),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: transactionKeys.list(accountId) })
+      void queryClient.invalidateQueries({
+        queryKey: transactionKeys.list(accountId),
+      })
     },
   })
 }

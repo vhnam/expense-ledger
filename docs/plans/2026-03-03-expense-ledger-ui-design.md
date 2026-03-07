@@ -16,22 +16,22 @@ These come from `db/init.sql`. All UI and API contracts must follow them.
 
 ### Account
 
-| Field | Type     | Constraints        |
-|-------|----------|--------------------|
-| `id`  | UUID     | PK                 |
-| `name`| string   | NOT NULL           |
-| `type`| string   | NOT NULL (e.g. bank, cash) |
+| Field  | Type   | Constraints                |
+| ------ | ------ | -------------------------- |
+| `id`   | UUID   | PK                         |
+| `name` | string | NOT NULL                   |
+| `type` | string | NOT NULL (e.g. bank, cash) |
 
 ### Transaction
 
-| Field        | Type              | Constraints                          |
-|--------------|-------------------|--------------------------------------|
-| `id`         | UUID              | PK                                  |
-| `account_id` | UUID              | NOT NULL, FK → accounts(id), CASCADE |
-| `amount`     | numeric(18,4)     | NOT NULL                            |
-| `date`       | timestamptz       | NOT NULL                            |
-| `description`| string            | NOT NULL, default ''                |
-| `type`       | 'income' \| 'expense' | NOT NULL, CHECK                  |
+| Field         | Type                  | Constraints                          |
+| ------------- | --------------------- | ------------------------------------ |
+| `id`          | UUID                  | PK                                   |
+| `account_id`  | UUID                  | NOT NULL, FK → accounts(id), CASCADE |
+| `amount`      | numeric(18,4)         | NOT NULL                             |
+| `date`        | timestamptz           | NOT NULL                             |
+| `description` | string                | NOT NULL, default ''                 |
+| `type`        | 'income' \| 'expense' | NOT NULL, CHECK                      |
 
 ---
 
@@ -169,14 +169,14 @@ When implementing, apply frontend-design and ui-ux-pro-max for typography, color
 
 ## Files to Create or Modify (Summary)
 
-| Area        | Create | Modify |
-|------------|--------|--------|
-| Types      | `src/types/account.ts`, `src/types/transaction.ts` (or single `ledger.ts`) | — |
-| API        | — | `netlify/functions/accounts.mts`, `netlify/functions/transactions.mts` (or account-scoped transaction routes) |
-| Services   | — | `src/services/account.service.ts`, `src/services/transaction.service.ts` |
-| Routes     | `src/routes/accounts/index.tsx`, `src/routes/accounts/$accountId.tsx` (or `$accountId/transactions.tsx`) | `src/routes/index.tsx`, `src/components/Header.tsx` |
-| Components | AccountList, AccountForm, AccountCard; TransactionList, TransactionForm, TransactionRow; shared EmptyState, ConfirmDialog | — |
-| UI         | Add shadcn Table, Card, Dialog, Select as needed | `src/styles.css` if theming for income/expense |
+| Area       | Create                                                                                                                    | Modify                                                                                                        |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| Types      | `src/types/account.ts`, `src/types/transaction.ts` (or single `ledger.ts`)                                                | —                                                                                                             |
+| API        | —                                                                                                                         | `netlify/functions/accounts.mts`, `netlify/functions/transactions.mts` (or account-scoped transaction routes) |
+| Services   | —                                                                                                                         | `src/services/account.service.ts`, `src/services/transaction.service.ts`                                      |
+| Routes     | `src/routes/accounts/index.tsx`, `src/routes/accounts/$accountId.tsx` (or `$accountId/transactions.tsx`)                  | `src/routes/index.tsx`, `src/components/Header.tsx`                                                           |
+| Components | AccountList, AccountForm, AccountCard; TransactionList, TransactionForm, TransactionRow; shared EmptyState, ConfirmDialog | —                                                                                                             |
+| UI         | Add shadcn Table, Card, Dialog, Select as needed                                                                          | `src/styles.css` if theming for income/expense                                                                |
 
 ---
 
