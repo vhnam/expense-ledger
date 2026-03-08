@@ -1,9 +1,11 @@
 -- ACCOUNTS
 CREATE TABLE IF NOT EXISTS accounts (
-	id   UUID PRIMARY KEY,
-	name TEXT NOT NULL,
-	type TEXT NOT NULL
+	id      UUID PRIMARY KEY,
+	name    TEXT NOT NULL,
+	type    TEXT NOT NULL,
+	user_id TEXT REFERENCES "user"(id) ON DELETE CASCADE
 );
+CREATE INDEX IF NOT EXISTS idx_accounts_user_id ON accounts(user_id);
 
 -- TRANSACTIONS
 CREATE TABLE IF NOT EXISTS transactions (

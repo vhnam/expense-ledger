@@ -24,7 +24,9 @@ async function handleResponse<T>(res: Response): Promise<T> {
 export async function fetchTransactions(
   accountId: string,
 ): Promise<Transaction[]> {
-  const res = await fetch(transactionsUrl(accountId))
+  const res = await fetch(transactionsUrl(accountId), {
+    credentials: 'include',
+  })
   return handleResponse<Transaction[]>(res)
 }
 
@@ -34,6 +36,7 @@ export async function createTransaction(
 ): Promise<Transaction> {
   const res = await fetch(transactionsUrl(accountId), {
     method: 'POST',
+    credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ ...data, account_id: accountId }),
   })
@@ -44,7 +47,9 @@ export async function fetchTransaction(
   accountId: string,
   id: string,
 ): Promise<Transaction> {
-  const res = await fetch(transactionUrl(accountId, id))
+  const res = await fetch(transactionUrl(accountId, id), {
+    credentials: 'include',
+  })
   return handleResponse<Transaction>(res)
 }
 
@@ -55,6 +60,7 @@ export async function updateTransaction(
 ): Promise<Transaction> {
   const res = await fetch(transactionUrl(accountId, id), {
     method: 'PATCH',
+    credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
   })
@@ -65,6 +71,9 @@ export async function deleteTransaction(
   accountId: string,
   id: string,
 ): Promise<void> {
-  const res = await fetch(transactionUrl(accountId, id), { method: 'DELETE' })
+  const res = await fetch(transactionUrl(accountId, id), {
+    method: 'DELETE',
+    credentials: 'include',
+  })
   await handleResponse<void>(res)
 }

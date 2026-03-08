@@ -18,13 +18,14 @@ async function handleResponse<T>(res: Response): Promise<T> {
 }
 
 export async function fetchAccounts(): Promise<Account[]> {
-  const res = await fetch(accountsUrl())
+  const res = await fetch(accountsUrl(), { credentials: 'include' })
   return handleResponse<Account[]>(res)
 }
 
 export async function createAccount(data: AccountCreate): Promise<Account> {
   const res = await fetch(accountsUrl(), {
     method: 'POST',
+    credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
   })
@@ -32,7 +33,7 @@ export async function createAccount(data: AccountCreate): Promise<Account> {
 }
 
 export async function fetchAccount(id: string): Promise<Account> {
-  const res = await fetch(accountUrl(id))
+  const res = await fetch(accountUrl(id), { credentials: 'include' })
   return handleResponse<Account>(res)
 }
 
@@ -42,6 +43,7 @@ export async function updateAccount(
 ): Promise<Account> {
   const res = await fetch(accountUrl(id), {
     method: 'PATCH',
+    credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
   })
@@ -49,6 +51,9 @@ export async function updateAccount(
 }
 
 export async function deleteAccount(id: string): Promise<void> {
-  const res = await fetch(accountUrl(id), { method: 'DELETE' })
+  const res = await fetch(accountUrl(id), {
+    method: 'DELETE',
+    credentials: 'include',
+  })
   await handleResponse<void>(res)
 }

@@ -9,12 +9,17 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AccountsIndexRouteImport } from './routes/accounts/index'
-import { Route as DemoBetterAuthRouteImport } from './routes/demo/better-auth'
 import { Route as AccountsAccountIdRouteImport } from './routes/accounts/$accountId'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -23,11 +28,6 @@ const IndexRoute = IndexRouteImport.update({
 const AccountsIndexRoute = AccountsIndexRouteImport.update({
   id: '/accounts/',
   path: '/accounts/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoBetterAuthRoute = DemoBetterAuthRouteImport.update({
-  id: '/demo/better-auth',
-  path: '/demo/better-auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AccountsAccountIdRoute = AccountsAccountIdRouteImport.update({
@@ -43,23 +43,23 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/accounts/$accountId': typeof AccountsAccountIdRoute
-  '/demo/better-auth': typeof DemoBetterAuthRoute
   '/accounts/': typeof AccountsIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/accounts/$accountId': typeof AccountsAccountIdRoute
-  '/demo/better-auth': typeof DemoBetterAuthRoute
   '/accounts': typeof AccountsIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/accounts/$accountId': typeof AccountsAccountIdRoute
-  '/demo/better-auth': typeof DemoBetterAuthRoute
   '/accounts/': typeof AccountsIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
@@ -67,36 +67,38 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/auth'
     | '/accounts/$accountId'
-    | '/demo/better-auth'
     | '/accounts/'
     | '/api/auth/$'
   fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/accounts/$accountId'
-    | '/demo/better-auth'
-    | '/accounts'
-    | '/api/auth/$'
+  to: '/' | '/auth' | '/accounts/$accountId' | '/accounts' | '/api/auth/$'
   id:
     | '__root__'
     | '/'
+    | '/auth'
     | '/accounts/$accountId'
-    | '/demo/better-auth'
     | '/accounts/'
     | '/api/auth/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthRoute: typeof AuthRoute
   AccountsAccountIdRoute: typeof AccountsAccountIdRoute
-  DemoBetterAuthRoute: typeof DemoBetterAuthRoute
   AccountsIndexRoute: typeof AccountsIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -109,13 +111,6 @@ declare module '@tanstack/react-router' {
       path: '/accounts'
       fullPath: '/accounts/'
       preLoaderRoute: typeof AccountsIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/better-auth': {
-      id: '/demo/better-auth'
-      path: '/demo/better-auth'
-      fullPath: '/demo/better-auth'
-      preLoaderRoute: typeof DemoBetterAuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/accounts/$accountId': {
@@ -137,8 +132,8 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthRoute: AuthRoute,
   AccountsAccountIdRoute: AccountsAccountIdRoute,
-  DemoBetterAuthRoute: DemoBetterAuthRoute,
   AccountsIndexRoute: AccountsIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
 }

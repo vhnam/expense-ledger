@@ -1,5 +1,7 @@
 import type { Context } from '@netlify/functions'
 import { neon } from '@neondatabase/serverless'
+import { getSessionFromRequest } from '../lib/auth.mts'
+import { handlePreflight, withCors } from '../lib/cors.mts'
 
 const DATABASE_URL = process.env.DATABASE_URL
 
@@ -20,11 +22,18 @@ function err(message: string, status: number) {
 }
 
 export default async (req: Request, _context: Context) => {
+  const preflight = handlePreflight(req)
+  if (preflight) return preflight
+
+  const session = await getSessionFromRequest(req)
+  if (!session) return withCors(req, err('Unauthorized', 401))
+  const userId = session.user.id
+
   const url = new URL(req.url)
   const accountId = url.searchParams.get('accountId')
   const id = url.searchParams.get('id')
-  if (!accountId) return err('accountId query parameter is required', 400)
-  if (!id) return err('id query parameter is required', 400)
+  if (!accountId) return withCors(req, err('accountId query parameter is required', 400))
+  if (!id) return withCors(req, err('id query parameter is required', 400))
 
   const method = req.method
 
@@ -33,12 +42,13 @@ export default async (req: Request, _context: Context) => {
 
     if (method === 'GET') {
       const [row] = await sql`
-        SELECT id, account_id, amount::text, date, description, type
-        FROM transactions
-        WHERE id = ${id} AND account_id = ${accountId}
+        SELECT t.id, t.account_id, t.amount::text, t.date, t.description, t.type
+        FROM transactions t
+        JOIN accounts a ON t.account_id = a.id
+        WHERE t.id = ${id} AND t.account_id = ${accountId} AND a.user_id = ${userId}
       `
-      if (!row) return err('Not found', 404)
-      return json(row)
+      if (!row) return withCors(req, err('Not found', 404))
+      return withCors(req, json(row))
     }
 
     if (method === 'PATCH') {
@@ -51,11 +61,11 @@ export default async (req: Request, _context: Context) => {
       try {
         body = (await req.json()) as typeof body
       } catch {
-        return err('Invalid JSON', 400)
+        return withCors(req, err('Invalid JSON', 400))
       }
       const amount = body.amount != null ? Number(body.amount) : undefined
       if (amount !== undefined && Number.isNaN(amount))
-        return err('amount must be a number', 400)
+        return withCors(req, err('amount must be a number', 400))
       const date =
         body.date !== undefined ? String(body.date).trim() : undefined
       const description =
@@ -71,14 +81,16 @@ export default async (req: Request, _context: Context) => {
         description === undefined &&
         type === undefined
       ) {
-        return err('No fields to update', 400)
+        return withCors(req, err('No fields to update', 400))
       }
 
       const [existing] = await sql`
-        SELECT id, account_id, amount, date, description, type FROM transactions
-        WHERE id = ${id} AND account_id = ${accountId}
+        SELECT t.id, t.account_id, t.amount, t.date, t.description, t.type
+        FROM transactions t
+        JOIN accounts a ON t.account_id = a.id
+        WHERE t.id = ${id} AND t.account_id = ${accountId} AND a.user_id = ${userId}
       `
-      if (!existing) return err('Not found', 404)
+      if (!existing) return withCors(req, err('Not found', 404))
 
       const newAmount = amount !== undefined ? amount : Number(existing.amount)
       const newDate = date !== undefined ? date : String(existing.date)
@@ -92,21 +104,25 @@ export default async (req: Request, _context: Context) => {
         WHERE id = ${id} AND account_id = ${accountId}
         RETURNING id, account_id, amount::text, date, description, type
       `
-      if (!updated) return err('Not found', 404)
-      return json(updated)
+      if (!updated) return withCors(req, err('Not found', 404))
+      return withCors(req, json(updated))
     }
 
     if (method === 'DELETE') {
-      const [deleted] = await sql`
-        DELETE FROM transactions WHERE id = ${id} AND account_id = ${accountId} RETURNING id
+      // Verify ownership before deleting
+      const [owned] = await sql`
+        SELECT t.id FROM transactions t
+        JOIN accounts a ON t.account_id = a.id
+        WHERE t.id = ${id} AND t.account_id = ${accountId} AND a.user_id = ${userId}
       `
-      if (!deleted) return err('Not found', 404)
-      return new Response(null, { status: 204 })
+      if (!owned) return withCors(req, err('Not found', 404))
+      await sql`DELETE FROM transactions WHERE id = ${id} AND account_id = ${accountId}`
+      return withCors(req, new Response(null, { status: 204 }))
     }
 
-    return err('Method not allowed', 405)
+    return withCors(req, err('Method not allowed', 405))
   } catch (e) {
     console.error(e)
-    return err('Internal server error', 500)
+    return withCors(req, err('Internal server error', 500))
   }
 }

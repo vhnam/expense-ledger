@@ -1,15 +1,21 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, redirect } from '@tanstack/react-router'
 import { useState } from 'react'
 import { authClient } from '@/lib/auth-client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
-export const Route = createFileRoute('/demo/better-auth')({
-  component: BetterAuthDemo,
+export const Route = createFileRoute('/auth')({
+  beforeLoad: async () => {
+    const session = await authClient.getSession()
+    if (session?.user) {
+      throw redirect({ to: '/' })
+    }
+  },
+  component: AuthPage,
 })
 
-function BetterAuthDemo() {
+function AuthPage() {
   const { data: session, isPending } = authClient.useSession()
   const [isSignUp, setIsSignUp] = useState(false)
   const [email, setEmail] = useState('')
@@ -27,62 +33,7 @@ function BetterAuthDemo() {
   }
 
   if (session?.user) {
-    return (
-      <div className="flex justify-center py-10 px-4">
-        <div className="w-full max-w-md p-6 space-y-6">
-          <div className="space-y-1.5">
-            <h1 className="text-lg font-semibold leading-none tracking-tight">
-              Welcome back
-            </h1>
-            <p className="text-sm text-neutral-500 dark:text-neutral-400">
-              You're signed in as {session.user.email}
-            </p>
-          </div>
-
-          <div className="flex items-center gap-3">
-            {session.user.image ? (
-              <img src={session.user.image} alt="" className="h-10 w-10" />
-            ) : (
-              <div className="h-10 w-10 bg-neutral-200 dark:bg-neutral-800 flex items-center justify-center">
-                <span className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
-                  {session.user.name?.charAt(0).toUpperCase() || 'U'}
-                </span>
-              </div>
-            )}
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate">
-                {session.user.name}
-              </p>
-              <p className="text-xs text-neutral-500 dark:text-neutral-400 truncate">
-                {session.user.email}
-              </p>
-            </div>
-          </div>
-
-          <button
-            onClick={() => {
-              void authClient.signOut()
-            }}
-            className="w-full h-9 px-4 text-sm font-medium border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
-          >
-            Sign out
-          </button>
-
-          <p className="text-xs text-center text-neutral-400 dark:text-neutral-500">
-            Built with{' '}
-            <a
-              href="https://better-auth.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-medium hover:text-neutral-600 dark:hover:text-neutral-300"
-            >
-              BETTER-AUTH
-            </a>
-            .
-          </p>
-        </div>
-      </div>
-    )
+    return null
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -96,20 +47,22 @@ function BetterAuthDemo() {
           email,
           password,
           name,
+          callbackURL: typeof window !== 'undefined' ? `${window.location.origin}/` : '/',
         })
         if (result.error) {
-          setError(result.error.message || 'Sign up failed')
+          setError(result.error.message ?? 'Sign up failed')
         }
       } else {
         const result = await authClient.signIn.email({
           email,
           password,
+          callbackURL: typeof window !== 'undefined' ? `${window.location.origin}/` : '/',
         })
         if (result.error) {
-          setError(result.error.message || 'Sign in failed')
+          setError(result.error.message ?? 'Sign in failed')
         }
       }
-    } catch (err) {
+    } catch {
       setError('An unexpected error occurred')
     } finally {
       setLoading(false)
@@ -125,16 +78,13 @@ function BetterAuthDemo() {
         <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-2 mb-6">
           {isSignUp
             ? 'Enter your information to create an account'
-            : 'Enter your email below to login to your account'}
+            : 'Enter your email and password to sign in'}
         </p>
 
         <form onSubmit={handleSubmit} className="grid gap-4">
           {isSignUp && (
             <div className="grid gap-2">
-              <Label
-                htmlFor="name"
-                className="text-sm font-medium leading-none"
-              >
+              <Label htmlFor="name" className="text-sm font-medium leading-none">
                 Name
               </Label>
               <Input
@@ -163,10 +113,7 @@ function BetterAuthDemo() {
           </div>
 
           <div className="grid gap-2">
-            <Label
-              htmlFor="password"
-              className="text-sm font-medium leading-none"
-            >
+            <Label htmlFor="password" className="text-sm font-medium leading-none">
               Password
             </Label>
             <Input
@@ -215,19 +162,6 @@ function BetterAuthDemo() {
               : "Don't have an account? Sign up"}
           </Button>
         </div>
-
-        <p className="mt-6 text-xs text-center text-neutral-400 dark:text-neutral-500">
-          Built with{' '}
-          <a
-            href="https://better-auth.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-medium hover:text-neutral-600 dark:hover:text-neutral-300"
-          >
-            BETTER-AUTH
-          </a>
-          .
-        </p>
       </div>
     </div>
   )
