@@ -41,7 +41,7 @@ export default async (req: Request, _context: Context) => {
 
     if (method === 'GET') {
       const [account] =
-        await sql`SELECT id FROM accounts WHERE id = ${accountId} AND user_id = ${userId}`
+        await sql`SELECT id FROM bank_accounts WHERE id = ${accountId} AND user_id = ${userId}`
       if (!account) return withCors(req, err('Not found', 404))
 
       const rows = await sql`
@@ -70,7 +70,7 @@ export default async (req: Request, _context: Context) => {
         return withCors(req, err('account_id must match accountId', 400))
 
       const [account] =
-        await sql`SELECT id FROM accounts WHERE id = ${accountId} AND user_id = ${userId}`
+        await sql`SELECT id FROM bank_accounts WHERE id = ${accountId} AND user_id = ${userId}`
       if (!account) return withCors(req, err('Not found', 404))
 
       const amount = body.amount != null ? Number(body.amount) : NaN

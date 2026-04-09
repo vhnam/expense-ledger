@@ -40,7 +40,7 @@ export default async (req: Request, _context: Context) => {
 
     if (method === 'GET') {
       const [row] =
-        await sql`SELECT id, name, type FROM accounts WHERE id = ${id} AND user_id = ${userId}`
+        await sql`SELECT id, name, type FROM bank_accounts WHERE id = ${id} AND user_id = ${userId}`
       if (!row) return withCors(req, err('Not found', 404))
       return withCors(req, json(row))
     }
@@ -66,15 +66,15 @@ export default async (req: Request, _context: Context) => {
       let updated: { id: string; name: string; type: string } | null
       if (name !== undefined && type !== undefined) {
         ;[updated] = await sql`
-          UPDATE accounts SET name = ${name}, type = ${type} WHERE id = ${id} AND user_id = ${userId} RETURNING id, name, type
+          UPDATE bank_accounts SET name = ${name}, type = ${type} WHERE id = ${id} AND user_id = ${userId} RETURNING id, name, type
         `
       } else if (name !== undefined) {
         ;[updated] = await sql`
-          UPDATE accounts SET name = ${name} WHERE id = ${id} AND user_id = ${userId} RETURNING id, name, type
+          UPDATE bank_accounts SET name = ${name} WHERE id = ${id} AND user_id = ${userId} RETURNING id, name, type
         `
       } else {
         ;[updated] = await sql`
-          UPDATE accounts SET type = ${type} WHERE id = ${id} AND user_id = ${userId} RETURNING id, name, type
+          UPDATE bank_accounts SET type = ${type} WHERE id = ${id} AND user_id = ${userId} RETURNING id, name, type
         `
       }
       if (!updated) return withCors(req, err('Not found', 404))
@@ -83,7 +83,7 @@ export default async (req: Request, _context: Context) => {
 
     if (method === 'DELETE') {
       const [deleted] =
-        await sql`DELETE FROM accounts WHERE id = ${id} AND user_id = ${userId} RETURNING id`
+        await sql`DELETE FROM bank_accounts WHERE id = ${id} AND user_id = ${userId} RETURNING id`
       if (!deleted) return withCors(req, err('Not found', 404))
       return withCors(req, new Response(null, { status: 204 }))
     }

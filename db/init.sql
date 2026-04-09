@@ -1,16 +1,16 @@
 -- ACCOUNTS
-CREATE TABLE IF NOT EXISTS accounts (
+CREATE TABLE IF NOT EXISTS bank_accounts (
 	id      UUID PRIMARY KEY,
 	name    TEXT NOT NULL,
 	type    TEXT NOT NULL,
 	user_id TEXT REFERENCES "user"(id) ON DELETE CASCADE
 );
-CREATE INDEX IF NOT EXISTS idx_accounts_user_id ON accounts(user_id);
+CREATE INDEX IF NOT EXISTS idx_bank_accounts_user_id ON bank_accounts(user_id);
 
 -- TRANSACTIONS
 CREATE TABLE IF NOT EXISTS transactions (
 	id         UUID PRIMARY KEY,
-	account_id UUID NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
+	account_id UUID NOT NULL REFERENCES bank_accounts(id) ON DELETE CASCADE,
 	amount     NUMERIC(18,4) NOT NULL,
 	date       TIMESTAMPTZ NOT NULL,
 	description TEXT NOT NULL DEFAULT '',

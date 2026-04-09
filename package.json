@@ -9,6 +9,8 @@
     "dev": "vite dev --port 3000",
     "build": "vite build",
     "preview": "vite preview",
+    "db:migrate": "pnpm node scripts/migrate-better-auth.mjs",
+    "db:migrate:auth": "pnpm node scripts/migrate-better-auth.mjs",
     "test": "vitest run",
     "lint": "eslint",
     "format": "prettier --check .",

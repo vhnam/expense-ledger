@@ -36,7 +36,7 @@ export default async (req: Request, _context: Context) => {
 
     if (method === 'GET') {
       const rows =
-        await sql`SELECT id, name, type FROM accounts WHERE user_id = ${userId} ORDER BY name`
+        await sql`SELECT id, name, type FROM bank_accounts WHERE user_id = ${userId} ORDER BY name`
       return withCors(req, json(rows))
     }
 
@@ -52,7 +52,7 @@ export default async (req: Request, _context: Context) => {
       if (!name) return withCors(req, err('name is required', 400))
       if (!type) return withCors(req, err('type is required', 400))
       const [row] = await sql`
-        INSERT INTO accounts (id, name, type, user_id)
+        INSERT INTO bank_accounts (id, name, type, user_id)
         VALUES (gen_random_uuid(), ${name}, ${type}, ${userId})
         RETURNING id, name, type
       `

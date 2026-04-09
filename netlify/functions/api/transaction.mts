@@ -44,7 +44,7 @@ export default async (req: Request, _context: Context) => {
       const [row] = await sql`
         SELECT t.id, t.account_id, t.amount::text, t.date, t.description, t.type
         FROM transactions t
-        JOIN accounts a ON t.account_id = a.id
+        JOIN bank_accounts a ON t.account_id = a.id
         WHERE t.id = ${id} AND t.account_id = ${accountId} AND a.user_id = ${userId}
       `
       if (!row) return withCors(req, err('Not found', 404))
@@ -87,7 +87,7 @@ export default async (req: Request, _context: Context) => {
       const [existing] = await sql`
         SELECT t.id, t.account_id, t.amount, t.date, t.description, t.type
         FROM transactions t
-        JOIN accounts a ON t.account_id = a.id
+        JOIN bank_accounts a ON t.account_id = a.id
         WHERE t.id = ${id} AND t.account_id = ${accountId} AND a.user_id = ${userId}
       `
       if (!existing) return withCors(req, err('Not found', 404))
@@ -112,7 +112,7 @@ export default async (req: Request, _context: Context) => {
       // Verify ownership before deleting
       const [owned] = await sql`
         SELECT t.id FROM transactions t
-        JOIN accounts a ON t.account_id = a.id
+        JOIN bank_accounts a ON t.account_id = a.id
         WHERE t.id = ${id} AND t.account_id = ${accountId} AND a.user_id = ${userId}
       `
       if (!owned) return withCors(req, err('Not found', 404))
