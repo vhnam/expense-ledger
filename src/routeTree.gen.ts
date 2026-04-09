@@ -13,7 +13,7 @@ import { Route as TransactionsRouteImport } from './routes/transactions'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AccountsIndexRouteImport } from './routes/accounts/index'
-import { Route as AccountsAccountIdRouteImport } from './routes/accounts/$accountId'
+import { Route as AccountAccountIdRouteImport } from './routes/account/$accountId'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
 const TransactionsRoute = TransactionsRouteImport.update({
@@ -36,9 +36,9 @@ const AccountsIndexRoute = AccountsIndexRouteImport.update({
   path: '/accounts/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AccountsAccountIdRoute = AccountsAccountIdRouteImport.update({
-  id: '/accounts/$accountId',
-  path: '/accounts/$accountId',
+const AccountAccountIdRoute = AccountAccountIdRouteImport.update({
+  id: '/account/$accountId',
+  path: '/account/$accountId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
@@ -51,7 +51,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/transactions': typeof TransactionsRoute
-  '/accounts/$accountId': typeof AccountsAccountIdRoute
+  '/account/$accountId': typeof AccountAccountIdRoute
   '/accounts/': typeof AccountsIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
@@ -59,7 +59,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/transactions': typeof TransactionsRoute
-  '/accounts/$accountId': typeof AccountsAccountIdRoute
+  '/account/$accountId': typeof AccountAccountIdRoute
   '/accounts': typeof AccountsIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
@@ -68,7 +68,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/transactions': typeof TransactionsRoute
-  '/accounts/$accountId': typeof AccountsAccountIdRoute
+  '/account/$accountId': typeof AccountAccountIdRoute
   '/accounts/': typeof AccountsIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
@@ -78,7 +78,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/transactions'
-    | '/accounts/$accountId'
+    | '/account/$accountId'
     | '/accounts/'
     | '/api/auth/$'
   fileRoutesByTo: FileRoutesByTo
@@ -86,7 +86,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/transactions'
-    | '/accounts/$accountId'
+    | '/account/$accountId'
     | '/accounts'
     | '/api/auth/$'
   id:
@@ -94,7 +94,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/transactions'
-    | '/accounts/$accountId'
+    | '/account/$accountId'
     | '/accounts/'
     | '/api/auth/$'
   fileRoutesById: FileRoutesById
@@ -103,7 +103,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
   TransactionsRoute: typeof TransactionsRoute
-  AccountsAccountIdRoute: typeof AccountsAccountIdRoute
+  AccountAccountIdRoute: typeof AccountAccountIdRoute
   AccountsIndexRoute: typeof AccountsIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
@@ -138,11 +138,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AccountsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/accounts/$accountId': {
-      id: '/accounts/$accountId'
-      path: '/accounts/$accountId'
-      fullPath: '/accounts/$accountId'
-      preLoaderRoute: typeof AccountsAccountIdRouteImport
+    '/account/$accountId': {
+      id: '/account/$accountId'
+      path: '/account/$accountId'
+      fullPath: '/account/$accountId'
+      preLoaderRoute: typeof AccountAccountIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/auth/$': {
@@ -159,7 +159,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
   TransactionsRoute: TransactionsRoute,
-  AccountsAccountIdRoute: AccountsAccountIdRoute,
+  AccountAccountIdRoute: AccountAccountIdRoute,
   AccountsIndexRoute: AccountsIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
 }

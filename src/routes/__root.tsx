@@ -5,7 +5,7 @@ import {
   redirect,
 } from '@tanstack/react-router'
 
-import Header from '@/components/Header'
+import AppShell from '@/components/layout/AppShell'
 import { authClient } from '@/lib/auth-client'
 import { hasAuthenticatedUser, isPublicPath } from '@/lib/auth-guards'
 
@@ -15,6 +15,7 @@ import appCss from '@/styles.css?url'
 
 import type { QueryClient } from '@tanstack/react-query'
 import type { PropsWithChildren } from 'react'
+import { TooltipProvider } from '@/components/ui/tooltip'
 
 interface AppRouterContext {
   queryClient: QueryClient
@@ -61,8 +62,9 @@ function RootDocument({ children }: PropsWithChildren) {
       </head>
       <body>
         <TanStackQueryProvider>
-          <Header />
-          {children}
+          <TooltipProvider>
+            <AppShell>{children}</AppShell>
+          </TooltipProvider>
         </TanStackQueryProvider>
         <Scripts />
       </body>

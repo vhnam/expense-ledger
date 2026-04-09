@@ -1,118 +1,94 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, Link } from '@tanstack/react-router'
 import {
-  IconMap,
-  IconServer,
-  IconRoute,
-  IconShield,
-  IconWash,
-  IconSparkles,
+  IconWallet,
+  IconListDetails,
+  IconShieldLock,
 } from '@tabler/icons-react'
+import {
+  InsetPage,
+  pageEyebrowClass,
+  pageTitleClass,
+} from '@/components/layout/InsetPage'
 
-export const Route = createFileRoute('/')({ component: App })
+export const Route = createFileRoute('/')({ component: HomePage })
 
-function App() {
-  const features = [
-    {
-      icon: <IconMap className="w-12 h-12 text-cyan-400" />,
-      title: 'Powerful Server Functions',
-      description:
-        'Write server-side code that seamlessly integrates with your client components. Type-safe, secure, and simple.',
-    },
-    {
-      icon: <IconServer className="w-12 h-12 text-cyan-400" />,
-      title: 'Flexible Server Side Rendering',
-      description:
-        'Full-document SSR, streaming, and progressive enhancement out of the box. Control exactly what renders where.',
-    },
-    {
-      icon: <IconRoute className="w-12 h-12 text-cyan-400" />,
-      title: 'API Routes',
-      description:
-        'Build type-safe API endpoints alongside your application. No separate backend needed.',
-    },
-    {
-      icon: <IconShield className="w-12 h-12 text-cyan-400" />,
-      title: 'Strongly Typed Everything',
-      description:
-        'End-to-end type safety from server to client. Catch errors before they reach production.',
-    },
-    {
-      icon: <IconWash className="w-12 h-12 text-cyan-400" />,
-      title: 'Full Streaming Support',
-      description:
-        'Stream data from server to client progressively. Perfect for AI applications and real-time updates.',
-    },
-    {
-      icon: <IconSparkles className="w-12 h-12 text-cyan-400" />,
-      title: 'Next Generation Ready',
-      description:
-        'Built from the ground up for modern web applications. Deploy anywhere JavaScript runs.',
-    },
-  ]
+const cardClass =
+  'rounded-2xl border border-border bg-card p-6 shadow-sm transition-shadow duration-200 hover:shadow-md'
 
+function HomePage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900">
-      <section className="relative py-20 px-6 text-center overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 via-blue-500/10 to-purple-500/10"></div>
-        <div className="relative max-w-5xl mx-auto">
-          <div className="flex items-center justify-center gap-6 mb-6">
-            <img
-              src="/tanstack-circle-logo.png"
-              alt="TanStack Logo"
-              className="w-24 h-24 md:w-32 md:h-32"
-            />
-            <h1 className="text-6xl md:text-7xl font-black text-white [letter-spacing:-0.08em]">
-              <span className="text-gray-300">TANSTACK</span>{' '}
-              <span className="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
-                START
-              </span>
-            </h1>
-          </div>
-          <p className="text-2xl md:text-3xl text-gray-300 mb-4 font-light">
-            The framework for next generation AI applications
+    <InsetPage>
+      <div className="space-y-10 sm:space-y-12">
+        <header className="space-y-4 max-w-2xl">
+          <p className={pageEyebrowClass}>Expense Ledger</p>
+          <h1 className={pageTitleClass}>Home</h1>
+          <p className="text-base text-muted-foreground leading-relaxed">
+            Manage bank accounts and record income and expenses per account.
+            Open an account from Bank accounts to view and edit its
+            transactions.
           </p>
-          <p className="text-lg text-gray-400 max-w-3xl mx-auto mb-8">
-            Full-stack framework powered by TanStack Router for React and Solid.
-            Build modern applications with server functions, streaming, and type
-            safety.
-          </p>
-          <div className="flex flex-col items-center gap-4">
-            <a
-              href="https://tanstack.com/start"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-8 py-3 bg-cyan-500 hover:bg-cyan-600 text-white font-semibold rounded-lg transition-colors shadow-lg shadow-cyan-500/50"
+          <div className="pt-2">
+            <Link
+              to="/accounts"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-medium text-primary-foreground shadow-sm cursor-pointer transition-opacity duration-200 hover:opacity-90 min-h-11 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
-              Documentation
-            </a>
-            <p className="text-gray-400 text-sm mt-2">
-              Begin your TanStack Start journey by editing{' '}
-              <code className="px-2 py-1 bg-slate-700 rounded text-cyan-400">
-                /src/routes/index.tsx
-              </code>
-            </p>
+              <IconWallet className="size-4 shrink-0" aria-hidden />
+              Bank accounts
+            </Link>
           </div>
-        </div>
-      </section>
+        </header>
 
-      <section className="py-16 px-6 max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {features.map((feature, index) => (
-            <div
-              key={index}
-              className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-6 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10"
+        <section
+          className="grid gap-4 sm:grid-cols-2"
+          aria-labelledby="home-actions-heading"
+        >
+          <h2 id="home-actions-heading" className="sr-only">
+            What you can do
+          </h2>
+          <article className={cardClass}>
+            <span className="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary mb-4">
+              <IconWallet className="size-5" stroke={1.75} aria-hidden />
+            </span>
+            <h3 className="text-lg font-semibold tracking-tight text-foreground">
+              Bank accounts
+            </h3>
+            <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
+              Add, rename, or remove accounts. Each account keeps its own
+              transaction history.
+            </p>
+            <Link
+              to="/accounts"
+              className="mt-4 inline-flex text-sm font-medium text-primary cursor-pointer hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
             >
-              <div className="mb-4">{feature.icon}</div>
-              <h3 className="text-xl font-semibold text-white mb-3">
-                {feature.title}
-              </h3>
-              <p className="text-gray-400 leading-relaxed">
-                {feature.description}
-              </p>
-            </div>
-          ))}
-        </div>
-      </section>
-    </div>
+              Go to bank accounts →
+            </Link>
+          </article>
+          <article className={cardClass}>
+            <span className="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary mb-4">
+              <IconListDetails className="size-5" stroke={1.75} aria-hidden />
+            </span>
+            <h3 className="text-lg font-semibold tracking-tight text-foreground">
+              Transactions
+            </h3>
+            <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
+              Select an account on the bank accounts page to open its ledger.
+              Add, edit, or delete entries from there.
+            </p>
+          </article>
+        </section>
+
+        <p className="flex items-start gap-2 text-sm text-muted-foreground max-w-xl leading-relaxed">
+          <IconShieldLock
+            className="size-5 shrink-0 text-muted-foreground mt-0.5"
+            stroke={1.5}
+            aria-hidden
+          />
+          <span>
+            Your session is protected by authentication. Use a strong password
+            and keep your environment secrets out of version control.
+          </span>
+        </p>
+      </div>
+    </InsetPage>
   )
 }

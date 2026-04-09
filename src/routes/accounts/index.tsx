@@ -16,8 +16,13 @@ import {
   useUpdateAccount,
   useDeleteAccount,
 } from '@/hooks/use-accounts'
-import type { Account, AccountCreate } from '@/types/ledger'
+import type { BankAccount, BankAccountCreate } from '@/types/ledger'
 import { IconPlus } from '@tabler/icons-react'
+import {
+  InsetPage,
+  pageEyebrowClass,
+  pageTitleClass,
+} from '@/components/layout/InsetPage'
 
 export const Route = createFileRoute('/accounts/')({
   component: AccountsPage,
@@ -30,20 +35,20 @@ function AccountsPage() {
   const deleteMutation = useDeleteAccount()
 
   const [formOpen, setFormOpen] = useState(false)
-  const [editingAccount, setEditingAccount] = useState<Account | null>(null)
-  const [deleteTarget, setDeleteTarget] = useState<Account | null>(null)
+  const [editingAccount, setEditingAccount] = useState<BankAccount | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<BankAccount | null>(null)
 
   const handleAdd = () => {
     setEditingAccount(null)
     setFormOpen(true)
   }
 
-  const handleEdit = (account: Account) => {
+  const handleEdit = (account: BankAccount) => {
     setEditingAccount(account)
     setFormOpen(true)
   }
 
-  const handleFormSubmit = (data: AccountCreate) => {
+  const handleFormSubmit = (data: BankAccountCreate) => {
     if (editingAccount) {
       updateMutation.mutate(
         { id: editingAccount.id, data },
@@ -68,7 +73,7 @@ function AccountsPage() {
     setEditingAccount(null)
   }
 
-  const handleDeleteClick = (account: Account) => setDeleteTarget(account)
+  const handleDeleteClick = (account: BankAccount) => setDeleteTarget(account)
   const handleDeleteConfirm = () => {
     if (!deleteTarget) return
     deleteMutation.mutate(deleteTarget.id, {
@@ -84,35 +89,46 @@ function AccountsPage() {
 
   if (error) {
     return (
-      <div className="container max-w-4xl py-8">
-        <p className="text-destructive">
+      <InsetPage>
+        <p className="text-destructive text-sm leading-relaxed">
           Failed to load accounts: {error.message}
         </p>
-      </div>
+      </InsetPage>
     )
   }
 
   return (
-    <div className="container max-w-4xl py-8 mx-auto px-4 lg:px-6">
-      <div className="flex flex-col gap-6">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <h1 className="text-2xl font-semibold tracking-tight">Accounts</h1>
-          <Button onClick={handleAdd}>
-            <IconPlus className="size-4" />
-            Add account
-          </Button>
-        </div>
+    <>
+      <InsetPage>
+        <div className="flex flex-col gap-6">
+          <header className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between sm:gap-4">
+            <div>
+              <p className={pageEyebrowClass}>Manage</p>
+              <h1 className={pageTitleClass}>Bank accounts</h1>
+              <p className="mt-1 text-sm text-muted-foreground leading-relaxed max-w-xl">
+                Open an account to view and edit its transactions.
+              </p>
+            </div>
+            <Button
+              onClick={handleAdd}
+              className="cursor-pointer shrink-0 min-h-11"
+            >
+              <IconPlus className="size-4" aria-hidden />
+              Add account
+            </Button>
+          </header>
 
-        {isLoading ? (
-          <p className="text-muted-foreground">Loading accounts…</p>
-        ) : (
-          <AccountList
-            accounts={accounts}
-            onEdit={handleEdit}
-            onDelete={handleDeleteClick}
-          />
-        )}
-      </div>
+          {isLoading ? (
+            <p className="text-muted-foreground">Loading accounts…</p>
+          ) : (
+            <AccountList
+              accounts={accounts}
+              onEdit={handleEdit}
+              onDelete={handleDeleteClick}
+            />
+          )}
+        </div>
+      </InsetPage>
 
       <Dialog
         open={formOpen}
@@ -168,6 +184,6 @@ function AccountsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   )
 }

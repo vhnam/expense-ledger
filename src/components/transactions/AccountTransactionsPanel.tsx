@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { createFileRoute, Link } from '@tanstack/react-router'
+import type { ReactNode } from 'react'
+import { Link } from '@tanstack/react-router'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -20,13 +21,36 @@ import { useAccount } from '@/hooks/use-accounts'
 import type { Transaction } from '@/types/ledger'
 import { IconPlus } from '@tabler/icons-react'
 import TransactionOverview from '@/components/transactions/TransactionOverview'
+import { cn } from '@/lib/utils'
 
-export const Route = createFileRoute('/accounts/$accountId')({
-  component: AccountDetailPage,
-})
+type AccountTransactionsPanelProps = {
+  accountId: string
+  /** Extra content above the page title (e.g. breadcrumb) */
+  topBar?: ReactNode
+  className?: string
+}
 
-function AccountDetailPage() {
-  const { accountId } = Route.useParams()
+function TransactionsLoadingSkeleton() {
+  return (
+    <div className="space-y-6 motion-reduce:animate-none">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        {[1, 2, 3].map((i) => (
+          <div
+            key={i}
+            className="h-28 rounded-xl border border-border bg-muted/40 animate-pulse motion-reduce:animate-none"
+          />
+        ))}
+      </div>
+      <div className="h-64 rounded-xl border border-border bg-muted/30 animate-pulse motion-reduce:animate-none" />
+    </div>
+  )
+}
+
+export function AccountTransactionsPanel({
+  accountId,
+  topBar,
+  className,
+}: AccountTransactionsPanelProps) {
   const {
     data: account,
     isLoading: accountLoading,
@@ -116,15 +140,16 @@ function AccountDetailPage() {
 
   if (accountError) {
     return (
-      <div className="container max-w-4xl py-8">
-        <p className="text-destructive">
+      <div className={cn('space-y-3', className)}>
+        {topBar}
+        <p className="text-destructive text-sm leading-relaxed">
           Failed to load account: {accountError.message}
         </p>
         <Link
           to="/accounts"
-          className="text-sm text-muted-foreground hover:text-foreground mt-2 inline-block"
+          className="text-sm text-muted-foreground hover:text-foreground inline-flex cursor-pointer transition-colors duration-200"
         >
-          ← Back to accounts
+          ← Bank accounts
         </Link>
       </div>
     )
@@ -132,8 +157,9 @@ function AccountDetailPage() {
 
   if (txError) {
     return (
-      <div className="container max-w-4xl py-8">
-        <p className="text-destructive">
+      <div className={cn('space-y-3', className)}>
+        {topBar}
+        <p className="text-destructive text-sm leading-relaxed">
           Failed to load transactions: {txError.message}
         </p>
       </div>
@@ -141,53 +167,60 @@ function AccountDetailPage() {
   }
 
   return (
-    <div className="container max-w-4xl py-8 px-4 lg:px-6 mx-auto">
-      <div className="mb-6 flex flex-wrap items-center gap-2">
-        <Link
-          to="/accounts"
-          className="text-sm text-muted-foreground hover:text-foreground"
+    <div className={cn('flex flex-col gap-6', className)}>
+      {topBar}
+
+      <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-1.5">
+            Transactions
+          </p>
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+            {accountLoading ? 'Loading…' : account ? account.name : 'Account'}
+          </h1>
+          {account && !accountLoading && (
+            <p className="mt-1.5 text-sm text-muted-foreground capitalize leading-relaxed">
+              {account.type} · summary and transaction history
+            </p>
+          )}
+        </div>
+        <Button
+          onClick={handleAdd}
+          className="cursor-pointer shrink-0 transition-opacity duration-200"
         >
-          ← Back to accounts
-        </Link>
-        {account && (
-          <span className="text-muted-foreground">
-            /{' '}
-            <span className="text-foreground font-medium">{account.name}</span>
-            <span className="capitalize text-muted-foreground ml-1">
-              ({account.type})
-            </span>
-          </span>
-        )}
+          <IconPlus className="size-4" aria-hidden />
+          Add transaction
+        </Button>
       </div>
 
-      <div className="flex flex-col gap-6">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <h1 className="text-2xl font-semibold tracking-tight">
-            {accountLoading
-              ? 'Account'
-              : account
-                ? `${account.name} — Transactions`
-                : 'Transactions'}
-          </h1>
-          <Button onClick={handleAdd}>
-            <IconPlus className="size-4" />
-            Add transaction
-          </Button>
-        </div>
-
-        {txLoading ? (
-          <p className="text-muted-foreground">Loading transactions…</p>
-        ) : (
-          <div className="space-y-6">
+      {txLoading || accountLoading ? (
+        <TransactionsLoadingSkeleton />
+      ) : (
+        <div className="space-y-8">
+          <section aria-labelledby="tx-summary-heading">
+            <h2
+              id="tx-summary-heading"
+              className="text-base font-semibold tracking-tight text-foreground mb-4"
+            >
+              Summary
+            </h2>
             <TransactionOverview transactions={transactions} />
+          </section>
+          <section aria-labelledby="tx-history-heading">
+            <h2
+              id="tx-history-heading"
+              className="text-base font-semibold tracking-tight text-foreground mb-4"
+            >
+              Transaction history
+            </h2>
             <TransactionList
               transactions={transactions}
               onEdit={handleEdit}
               onDelete={handleDeleteClick}
             />
-          </div>
-        )}
-      </div>
+          </section>
+        </div>
+      )}
 
       <Dialog
         open={formOpen}
@@ -221,7 +254,7 @@ function AccountDetailPage() {
         <DialogContent showCloseButton={true}>
           <DialogHeader>
             <DialogTitle>Delete transaction</DialogTitle>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground leading-relaxed">
               Delete this transaction? This cannot be undone.
             </p>
           </DialogHeader>
@@ -230,6 +263,7 @@ function AccountDetailPage() {
               variant="outline"
               onClick={handleDeleteCancel}
               disabled={isPending}
+              className="cursor-pointer"
             >
               Cancel
             </Button>
@@ -237,6 +271,7 @@ function AccountDetailPage() {
               variant="destructive"
               onClick={handleDeleteConfirm}
               disabled={isPending}
+              className="cursor-pointer"
             >
               {deleteMutation.isPending ? 'Deleting…' : 'Delete'}
             </Button>
