@@ -2,14 +2,16 @@
  * Ledger types aligned with db/init.sql
  */
 
-export interface Account {
+export interface BankAccount {
   id: string
   name: string
   type: string
 }
 
-export type AccountCreate = Pick<Account, 'name' | 'type'>
-export type AccountUpdate = Partial<AccountCreate>
+export type BankAccountType = 'bank' | 'cash' | 'card'
+
+export type BankAccountCreate = Pick<BankAccount, 'name' | 'type'>
+export type BankAccountUpdate = Partial<BankAccountCreate>
 
 export type TransactionType = 'income' | 'expense'
 

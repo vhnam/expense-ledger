@@ -1,10 +1,10 @@
-import type { Account } from '@/types/ledger'
+import type { BankAccount } from '@/types/ledger'
 import { AccountRow } from './AccountRow'
 
 type AccountListProps = {
-  accounts: Account[]
-  onEdit: (account: Account) => void
-  onDelete: (account: Account) => void
+  accounts: BankAccount[]
+  onEdit: (account: BankAccount) => void
+  onDelete: (account: BankAccount) => void
 }
 
 export function AccountList({ accounts, onEdit, onDelete }: AccountListProps) {

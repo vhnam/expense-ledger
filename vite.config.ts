@@ -1,5 +1,4 @@
 import { defineConfig } from 'vite'
-import { devtools } from '@tanstack/devtools-vite'
 import tsconfigPaths from 'vite-tsconfig-paths'
 
 import { tanstackStart } from '@tanstack/react-start/plugin/vite'
@@ -11,7 +10,6 @@ import neon from './neon-vite-plugin.ts'
 
 const config = defineConfig({
   plugins: [
-    devtools(),
     netlify(),
     neon,
     tsconfigPaths({ projects: ['./tsconfig.json'] }),

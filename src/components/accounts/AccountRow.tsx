@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import type { Account } from '@/types/ledger'
+import type { BankAccount } from '@/types/ledger'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -11,9 +11,9 @@ import {
 import { IconEdit, IconTrash, IconList } from '@tabler/icons-react'
 
 type AccountRowProps = {
-  account: Account
-  onEdit: (account: Account) => void
-  onDelete: (account: Account) => void
+  account: BankAccount
+  onEdit: (account: BankAccount) => void
+  onDelete: (account: BankAccount) => void
 }
 
 export function AccountRow({ account, onEdit, onDelete }: AccountRowProps) {
@@ -30,6 +30,7 @@ export function AccountRow({ account, onEdit, onDelete }: AccountRowProps) {
         <Button
           variant="outline"
           size="sm"
+          nativeButton={false}
           render={
             <Link to="/accounts/$accountId" params={{ accountId: account.id }}>
               <IconList className="size-4" />

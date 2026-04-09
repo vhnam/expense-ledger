@@ -1,15 +1,31 @@
 import { useState, useEffect } from 'react'
-import type { Account, AccountCreate } from '@/types/ledger'
+import type {
+  BankAccount,
+  BankAccountCreate,
+  BankAccountType,
+} from '@/types/ledger'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Select } from '@/components/ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 
-const ACCOUNT_TYPES = ['bank', 'cash', 'card'] as const
+const ACCOUNT_TYPES: BankAccountType[] = ['bank', 'cash', 'card']
+
+const accountItems = ACCOUNT_TYPES.map((t) => ({
+  label: t.charAt(0).toUpperCase() + t.slice(1),
+  value: t,
+}))
 
 type AccountFormProps = {
-  account?: Account | null
-  onSubmit: (data: AccountCreate) => void
+  account?: BankAccount | null
+  onSubmit: (data: BankAccountCreate) => void
   onCancel: () => void
   isPending?: boolean
 }
@@ -59,14 +75,21 @@ export function AccountForm({
         <Select
           id="account-type"
           value={type}
-          onChange={(e) => setType(e.target.value)}
+          onValueChange={(value) => setType(value as BankAccountType)}
           required
         >
-          {ACCOUNT_TYPES.map((t) => (
-            <option key={t} value={t}>
-              {t.charAt(0).toUpperCase() + t.slice(1)}
-            </option>
-          ))}
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Type" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              {accountItems.map((item) => (
+                <SelectItem key={item.value} value={item.value}>
+                  {item.label}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          </SelectContent>
         </Select>
       </div>
       <div className="flex justify-end gap-2">

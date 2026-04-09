@@ -3,9 +3,21 @@ import type { Transaction, TransactionType } from '@/types/ledger'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Select } from '@/components/ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 
 const TRANSACTION_TYPES: TransactionType[] = ['income', 'expense']
+
+const transactionItems = TRANSACTION_TYPES.map((t) => ({
+  label: t.charAt(0).toUpperCase() + t.slice(1),
+  value: t,
+}))
 
 /** Normalize ISO date string to YYYY-MM-DD for date input */
 function toDateInputValue(iso: string): string {
@@ -104,17 +116,19 @@ export function TransactionForm({
       </div>
       <div className="grid gap-2">
         <Label htmlFor="tx-type">Type</Label>
-        <Select
-          id="tx-type"
-          value={type}
-          onChange={(e) => setType(e.target.value as TransactionType)}
-          required
-        >
-          {TRANSACTION_TYPES.map((t) => (
-            <option key={t} value={t}>
-              {t.charAt(0).toUpperCase() + t.slice(1)}
-            </option>
-          ))}
+        <Select id="tx-type" value={type} onValueChange={(value) => setType(value as TransactionType)}>
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Type" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              {transactionItems.map((item) => (
+                <SelectItem key={item.value} value={item.value}>
+                  {item.label}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          </SelectContent>
         </Select>
       </div>
       <div className="grid gap-2">

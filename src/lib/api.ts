@@ -6,11 +6,11 @@ import { env } from '@/env'
 const NETLIFY_FUNCTIONS = env.VITE_NETLIFY_FUNCTIONS_URL
 
 export function accountsUrl(): string {
-  return `${NETLIFY_FUNCTIONS}/accounts`
+  return `${NETLIFY_FUNCTIONS}/bank_accounts`
 }
 
 export function accountUrl(id: string): string {
-  return `${NETLIFY_FUNCTIONS}/account?id=${encodeURIComponent(id)}`
+  return `${NETLIFY_FUNCTIONS}/bank_account?id=${encodeURIComponent(id)}`
 }
 
 export function transactionsUrl(accountId: string): string {
