@@ -1,5 +1,5 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { authClient } from '@/lib/auth-client'
 import { hasAuthenticatedUser } from '@/lib/auth-guards'
 import { Button } from '@/components/ui/button'
@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label'
 
 export const Route = createFileRoute('/auth')({
   beforeLoad: async () => {
+    if (typeof window === 'undefined') return
     const result = await authClient.getSession()
     if (hasAuthenticatedUser(result)) {
       throw redirect({ to: '/' })
@@ -18,12 +19,22 @@ export const Route = createFileRoute('/auth')({
 
 function AuthPage() {
   const { data: session, isPending } = authClient.useSession()
+  const navigate = Route.useNavigate()
   const [isSignUp, setIsSignUp] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [name, setName] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+
+  const AUTH_FAILURE_MESSAGE = 'Invalid email or password'
+  const SIGN_UP_FAILURE_MESSAGE = 'Unable to create account. Please try again.'
+
+  useEffect(() => {
+    if (session?.user) {
+      void navigate({ to: '/', replace: true })
+    }
+  }, [navigate, session?.user])
 
   if (isPending) {
     return (
@@ -51,7 +62,7 @@ function AuthPage() {
           callbackURL: typeof window !== 'undefined' ? `${window.location.origin}/` : '/',
         })
         if (result.error) {
-          setError(result.error.message ?? 'Sign up failed')
+          setError(SIGN_UP_FAILURE_MESSAGE)
         }
       } else {
         const result = await authClient.signIn.email({
@@ -60,7 +71,7 @@ function AuthPage() {
           callbackURL: typeof window !== 'undefined' ? `${window.location.origin}/` : '/',
         })
         if (result.error) {
-          setError(result.error.message ?? 'Sign in failed')
+          setError(AUTH_FAILURE_MESSAGE)
         }
       }
     } catch {

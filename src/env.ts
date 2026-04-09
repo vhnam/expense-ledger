@@ -9,6 +9,7 @@ export const env = createEnv({
     SERVER_URL: z.url().optional(),
     BETTER_AUTH_URL: z.url(),
     BETTER_AUTH_SECRET: z.string().min(32),
+    BETTER_AUTH_TRUSTED_ORIGINS: z.string().optional(),
     DATABASE_URL: z.url(),
   },
 
@@ -31,6 +32,7 @@ export const env = createEnv({
     SERVER_URL: process.env.SERVER_URL,
     BETTER_AUTH_URL: process.env.BETTER_AUTH_URL,
     BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET,
+    BETTER_AUTH_TRUSTED_ORIGINS: process.env.BETTER_AUTH_TRUSTED_ORIGINS,
     DATABASE_URL: process.env.DATABASE_URL,
     VITE_APP_TITLE: viteEnv?.VITE_APP_TITLE ?? process.env.VITE_APP_TITLE,
     VITE_NETLIFY_FUNCTIONS_URL:
