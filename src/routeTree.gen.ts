@@ -9,12 +9,18 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TransactionsRouteImport } from './routes/transactions'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AccountsIndexRouteImport } from './routes/accounts/index'
 import { Route as AccountsAccountIdRouteImport } from './routes/accounts/$accountId'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
+const TransactionsRoute = TransactionsRouteImport.update({
+  id: '/transactions',
+  path: '/transactions',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
@@ -44,6 +50,7 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/transactions': typeof TransactionsRoute
   '/accounts/$accountId': typeof AccountsAccountIdRoute
   '/accounts/': typeof AccountsIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -51,6 +58,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/transactions': typeof TransactionsRoute
   '/accounts/$accountId': typeof AccountsAccountIdRoute
   '/accounts': typeof AccountsIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -59,6 +67,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/transactions': typeof TransactionsRoute
   '/accounts/$accountId': typeof AccountsAccountIdRoute
   '/accounts/': typeof AccountsIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -68,15 +77,23 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/transactions'
     | '/accounts/$accountId'
     | '/accounts/'
     | '/api/auth/$'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/accounts/$accountId' | '/accounts' | '/api/auth/$'
+  to:
+    | '/'
+    | '/auth'
+    | '/transactions'
+    | '/accounts/$accountId'
+    | '/accounts'
+    | '/api/auth/$'
   id:
     | '__root__'
     | '/'
     | '/auth'
+    | '/transactions'
     | '/accounts/$accountId'
     | '/accounts/'
     | '/api/auth/$'
@@ -85,6 +102,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
+  TransactionsRoute: typeof TransactionsRoute
   AccountsAccountIdRoute: typeof AccountsAccountIdRoute
   AccountsIndexRoute: typeof AccountsIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
@@ -92,6 +110,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/transactions': {
+      id: '/transactions'
+      path: '/transactions'
+      fullPath: '/transactions'
+      preLoaderRoute: typeof TransactionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
@@ -133,6 +158,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
+  TransactionsRoute: TransactionsRoute,
   AccountsAccountIdRoute: AccountsAccountIdRoute,
   AccountsIndexRoute: AccountsIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,

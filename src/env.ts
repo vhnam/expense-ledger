@@ -1,9 +1,14 @@
 import { createEnv } from '@t3-oss/env-core'
 import { z } from 'zod'
 
+const viteEnv = (import.meta as ImportMeta & { env?: Record<string, string | undefined> })
+  .env
+
 export const env = createEnv({
   server: {
     SERVER_URL: z.url().optional(),
+    BETTER_AUTH_URL: z.url(),
+    BETTER_AUTH_SECRET: z.string().min(32),
     DATABASE_URL: z.url(),
   },
 
@@ -24,9 +29,13 @@ export const env = createEnv({
    */
   runtimeEnv: {
     SERVER_URL: process.env.SERVER_URL,
+    BETTER_AUTH_URL: process.env.BETTER_AUTH_URL,
+    BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET,
     DATABASE_URL: process.env.DATABASE_URL,
-    VITE_APP_TITLE: import.meta.env.VITE_APP_TITLE,
-    VITE_NETLIFY_FUNCTIONS_URL: import.meta.env.VITE_NETLIFY_FUNCTIONS_URL,
+    VITE_APP_TITLE: viteEnv?.VITE_APP_TITLE ?? process.env.VITE_APP_TITLE,
+    VITE_NETLIFY_FUNCTIONS_URL:
+      viteEnv?.VITE_NETLIFY_FUNCTIONS_URL ??
+      process.env.VITE_NETLIFY_FUNCTIONS_URL,
   },
 
   /**

@@ -2,8 +2,9 @@ import { betterAuth } from 'better-auth'
 import { tanstackStartCookies } from 'better-auth/tanstack-start'
 import { Pool } from '@neondatabase/serverless'
 import { PostgresDialect } from 'kysely'
+import { env } from '@/env'
 
-const betterAuthUrl = process.env.BETTER_AUTH_URL
+const betterAuthUrl = env.BETTER_AUTH_URL
 const trustedOrigins = ['http://localhost:3000']
 
 if (betterAuthUrl) {
@@ -16,7 +17,7 @@ if (betterAuthUrl) {
 
 export const auth = betterAuth({
   database: new PostgresDialect({
-    pool: new Pool({ connectionString: process.env.DATABASE_URL }),
+    pool: new Pool({ connectionString: env.DATABASE_URL }),
   }),
   trustedOrigins,
   emailAndPassword: {

@@ -1,14 +1,15 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
 import { useState } from 'react'
 import { authClient } from '@/lib/auth-client'
+import { hasAuthenticatedUser } from '@/lib/auth-guards'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
 export const Route = createFileRoute('/auth')({
   beforeLoad: async () => {
-    const session = await authClient.getSession()
-    if (session?.user) {
+    const result = await authClient.getSession()
+    if (hasAuthenticatedUser(result)) {
       throw redirect({ to: '/' })
     }
   },
